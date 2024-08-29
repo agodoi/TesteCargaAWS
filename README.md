@@ -210,195 +210,102 @@ Nesta tarefa, você criará um modelo de execução para seu grupo do Auto Scali
 
 **3.12)** Configure os detalhes na **Etapa 6** (Revisão): revise os detalhes do grupo do Auto Scaling. Escolha **Criar grupo do Auto Scaling**. O grupo do Auto Scaling mostrará inicialmente uma contagem de instâncias igual a zero, mas novas instâncias serão executadas para atingir a contagem desejada de **duas instâncias**.
 
- 
+## Passo-04: Verificar se o balanceamento de carga está funcionando
 
-Tarefa 4: Verificar se o balanceamento de carga está funcionando
 Nesta tarefa, você verificará se o balanceamento de carga está funcionando corretamente.
 
-No painel de navegação à esquerda, selecione Instâncias.
+**4.1)** No painel de navegação à esquerda, selecione **Instâncias**. Devem aparecer duas novas instâncias chamadas **Lab Instance**. Elas foram iniciadas pelo Auto Scaling. Se as instâncias ou nomes não forem exibidos, aguarde 30 segundos e selecione “Atualizar”  no canto superior direito. Em seguida, você confirmará que as novas instâncias foram aprovadas na health check.
 
-Devem aparecer duas novas instâncias chamadas Lab Instance. Elas foram iniciadas pelo Auto Scaling.
+**4.2)** No painel de navegação à esquerda, escolha **Grupos de destino**. Selecione **LabGroup**.
 
- Se as instâncias ou nomes não forem exibidos, aguarde 30 segundos e selecione “Atualizar”  no canto superior direito.
+**4.3)** Escolha a guia **Destinos**. Duas instâncias de destino chamadas **Lab Instance** (Instância do laboratório) devem ser listadas no grupo de destino.
 
-Em seguida, você confirmará que as novas instâncias foram aprovadas na health check.
+**4.3)** Aguarde até que o **Status** de ambas as instâncias mude para íntegro. Selecione **Atualizar** no canto superior direito para verificar se há atualizações, caso necessário.
 
- 
+O status íntegro indica que a instância passou na health check do balanceador de carga. Isso significa que o balanceador de carga enviará tráfego para a instância. Agora você pode acessar o grupo do Auto Scaling por meio do balanceador de carga.
 
-No painel de navegação à esquerda, escolha Grupos de destino.
+**4.4)** No painel de navegação à esquerda, escolha **Balanceadores de carga**.
 
- 
+**4.5)** Selecione o balanceador de carga **LabELB**.
 
-Selecione  LabGroup.
+**4.6)** No painel **Detalhes**, copie o **Nome do DNS** do balanceador de carga, omitindo “(Registro A)”. Deve ser semelhante a: **LabELB-1998580470.us-west-2.elb.amazonaws.com**
 
- 
+**4.7)** Abra uma nova guia do navegador da web, cole o nome do DNS que você acabou de copiar e pressione Enter. O aplicativo deve aparecer em seu navegador. Isso indica que o balanceador de carga recebeu a solicitação, a enviou para uma das instâncias do EC2 e, em seguida, repassou o resultado.
 
-Escolha a guia Destinos.
+## Passo-05: Testar o Auto Scaling
 
-Duas instâncias de destino chamadas “Lab Instance” (Instância do laboratório) devem ser listadas no grupo de destino.
-
- 
-
-Aguarde até que o Status de ambas as instâncias mude para íntegro. 
-
-Selecione “Atualizar”  no canto superior direito para verificar se há atualizações, caso necessário.
-
-O status íntegro indica que a instância passou na health check do balanceador de carga. Isso significa que o balanceador de carga enviará tráfego para a instância.
-
-Agora você pode acessar o grupo do Auto Scaling por meio do balanceador de carga.
-
- 
-
-No painel de navegação à esquerda, escolha Balanceadores de carga.
-
- 
-
-Selecione o balanceador de carga  LabELB.
-
- 
-
-No painel Detalhes, copie o Nome do DNS do balanceador de carga, omitindo “(Registro A)”.
-
-Deve ser semelhante a: LabELB-1998580470.us-west-2.elb.amazonaws.com
-
- 
-
-Abra uma nova guia do navegador da web, cole o nome do DNS que você acabou de copiar e pressione Enter.
-
-O aplicativo deve aparecer em seu navegador. Isso indica que o balanceador de carga recebeu a solicitação, a enviou para uma das instâncias do EC2 e, em seguida, repassou o resultado.
-
- 
-
-Tarefa 5: Testar o Auto Scaling
 Você criou um grupo de Auto Scaling com um mínimo de duas instâncias e um máximo de seis instâncias. Atualmente, duas instâncias estão em execução porque o tamanho mínimo é duas e o grupo não está atualmente sob nenhuma carga. Agora, você aumentará a carga para fazer com que o Auto Scaling acrescente outras instâncias.
 
-Volte para o Console de Gerenciamento da AWS, mas não feche a guia da aplicação. Você retornará a ela em breve.
+**5.1)** Volte para o Console de Gerenciamento da AWS, mas não feche a guia da aplicação. Você retornará a ela em breve.
 
+**5.2)** Na caixa de pesquisa ao lado de **Serviços**, pesquise e selecione **CloudWatch**.
  
-
-Na caixa de pesquisa ao lado de  Serviços , pesquise e selecione CloudWatch.
-
- 
-
-No painel de navegação à esquerda, selecione Todos os alarmes.
+**5.3)** No painel de navegação à esquerda, selecione **Todos os alarmes**.
 
 Dois alarmes serão exibidos. Foram criados automaticamente pelo grupo de Auto Scaling. Manterão automaticamente a carga média da CPU próxima a 60%, permanecendo também dentro da limitação de ter duas a seis instâncias.
 
- Observação: siga estas etapas somente se você não vir os alarmes em 60 segundos.
+### ATENÇÃO: siga estas etapas somente se você não vir os alarmes em 60 segundos.
 
-No menu  Serviços , selecione EC2.
+**5.4)** No menu **Serviços**, selecione **EC2**.
 
-No painel de navegação esquerdo, escolha Grupos do Auto Scaling. 
+**5.5)** No painel de navegação esquerdo, escolha **Grupos do Auto Scaling**. 
 
-Selecione  Lab Auto Scaling Group (Grupo do Auto Scaling do laboratório).
+**5.6)** Selecione **Lab Auto Scaling Group** (Grupo do Auto Scaling do laboratório).
 
-Na metade inferior da página, escolha a guia Auto Scaling.
+**5.7)** Na metade inferior da página, escolha a guia **Auto Scaling**.
 
-Selecione  LabScalingPolicy.
+**5.8)** Selecione **LabScalingPolicy**.
 
-Selecione Ações  e Editar.
+**5.9)** Selecione **Ações** e **Editar**.
 
-Altere o Valor de destino para 50.
+**5.10)** Altere o **Valor de destino** para **50**. Selecione **Atualizar**.
 
-Selecione Atualizar.
+**5.11)** No menu **Serviços**, selecione **CloudWatch**.
 
-No menu  Serviços , selecione CloudWatch.
+**5.12)** No painel de navegação à esquerda, selecione **Todos os alarmes** e confirme se há dois alarmes.
 
-No painel de navegação à esquerda, selecione Todos os alarmes e confirme se há dois alarmes.
+**5.13)** Selecione o alarme **OK**, que tem **AlarmHigh** no nome. Se nenhum alarme estiver mostrando OK, aguarde um minuto e selecione **Atualizar** no canto superior direito até que o status do alarme mude. Mas atenção: **OK** indica que o alarme **NÃO** foi acionado. É o alarme para **Utilização de CPU > 60** (lembra dos 60% de capacidade computacional? volte no passo **3.9.8**), que adicionará instâncias quando a CPU média estiver alta. O gráfico deve mostrar níveis muito baixos de CPU no momento. Agora, você informará ao aplicativo para executar cálculos que devem aumentar o nível de CPU.
 
- 
+**5.14)** Volte para a guia do navegador com o aplicativo web.
 
-Selecione o alarme OK, que tem AlarmHigh no nome.
+**5.15)** Selecione **Load Test** (Teste de carga) ao lado do logotipo da AWS. Isso fará com que o aplicativo gere cargas elevadas. A página do navegador será atualizada automaticamente para que todas as instâncias no grupo do Auto Scaling gerem carga. Não feche esta guia.
 
- Se nenhum alarme estiver mostrando OK, aguarde um minuto e selecione “Atualizar”  no canto superior direito até que o status do alarme mude.
+**5.16)** Volte para a guia do navegador com o console do **CloudWatch**. Em menos de cinco minutos, o alarme **AlarmLow** deverá mudar para **OK** e o status do alarme **AlarmHigh** deverá mudar para **Em alarme**. Você pode selecionar **Atualizar** no canto superior direito a cada 60 segundos para atualizar a exibição. Você deve ver o gráfico **AlarmHigh** indicando uma porcentagem crescente de CPU. Depois de cruzar a linha de 60% por mais de 3 minutos, o Auto Scaling acionará a adição de instâncias adicionais.
 
-OK indica que o alarme não foi acionado. É o alarme para Utilização de CPU > 60, que adicionará instâncias quando a CPU média estiver alta. O gráfico deve mostrar níveis muito baixos de CPU no momento.
+**5.17)** Aguarde até que o alarme **AlarmHigh** entre no estado **Em alarme**. Agora você pode visualizar as instâncias adicionais que foram executadas.
 
-Agora, você informará ao aplicativo para executar cálculos que devem aumentar o nível de CPU.
+**5.18)** Na caixa de pesquisa ao lado de **Serviços**, pesquise e selecione **EC2**.
 
- 
+**5.14)** No painel de navegação à esquerda, selecione **Instâncias**. Agora deve haver mais de duas instâncias rotuladas como **Lab Instance** em execução. As instâncias novas foram criadas pelo Auto Scaling em resposta ao alarme CloudWatch.
 
-Volte para a guia do navegador com o aplicativo web.
 
- 
+## Passo-06: Encerrar a instância Web Server 1
 
-Selecione Load Test (Teste de carga) ao lado do logotipo da AWS.
+Nesta tarefa, você encerrará a instância **Web Server 1**. Essa instância foi utilizada para criar a AMI usada por seu grupo do Auto Scaling, mas ela não é mais necessária.
 
-Isso fará com que o aplicativo gere cargas elevadas. A página do navegador será atualizada automaticamente para que todas as instâncias no grupo do Auto Scaling gerem carga. Não feche esta guia.
+**6.1)** Selecione  Web Server 1 e verifique se é a única instância selecionada.
 
- 
+**6.2)** No menu **Estado da instância**, selecione **Estado da instância** > **Encerrar instância**.
 
-Volte para a guia do navegador com o console do CloudWatch.
+Selecione **Encerrar**.
 
-Em menos de cinco minutos, o alarme AlarmLow deverá mudar para OK e o status do alarme AlarmHigh deverá mudar para Em alarme.
 
- Você pode selecionar “Atualizar”  no canto superior direito a cada 60 segundos para atualizar a exibição.
+## Envio do trabalho. Esse lab é do módulo 10
 
-Você deve ver o gráfico AlarmHigh indicando uma porcentagem crescente de CPU. Depois de cruzar a linha de 60% por mais de 3 minutos, o Auto Scaling acionará a adição de instâncias adicionais.
+* Para registrar seu progresso, selecione **Enviar** no topo destas instruções.
 
- 
+* Quando solicitado, selecione **Sim**.
 
-Aguarde até que o alarme AlarmHigh entre no estado Em alarme.
+* Depois de alguns minutos, o painel de notas é exibido e mostra quantos pontos você obteve em cada tarefa. Se os resultados não forem exibidos após alguns minutos, selecione **Notas** no topo destas instruções. Dica: você pode enviar seu trabalho várias vezes. Depois de fazer as alterações, selecione **Enviar** novamente. Seu último envio é registrado para o laboratório.
 
-Agora você pode visualizar as instâncias adicionais que foram executadas.
+* Para ver o feedback detalhado sobre seu trabalho, selecione **Relatório de envio**. Dica: se você não tiver recebido a pontuação total em alguma verificação, poderá haver detalhes úteis no relatório de envio.
 
- 
+## Laboratório concluído
 
-Na caixa de pesquisa ao lado de  Serviços , pesquise e selecione EC2.
+Parabéns! Você concluiu um dos laboratórios mais detalhado do curso.
 
- 
+* Selecione **Encerrar laboratório** no topo da página e **Sim** para confirmar que você deseja encerrar o laboratório.
 
-No painel de navegação à esquerda, selecione Instâncias.
+* Um painel será exibido com a mensagem: "DELETE has been initiated... (A EXCLUSÃO foi iniciada...) você pode fechar esta caixa de mensagem agora.”
 
-Agora deve haver mais de duas instâncias rotuladas como Lab Instance em execução. As instâncias novas foram criadas pelo Auto Scaling em resposta ao alarme CloudWatch.
-
- 
-
-Tarefa 6: Encerrar a instância Web Server 1
-Nesta tarefa, você encerrará a instância Web Server 1. Essa instância foi utilizada para criar a AMI usada por seu grupo do Auto Scaling, mas ela não é mais necessária.
-
-Selecione  Web Server 1 e verifique se é a única instância selecionada.
-
- 
-
-No menu Estado da instância , selecione Estado da instância > Encerrar instância.
-
- 
-
-Selecione Encerrar.
-
- 
-
-Envio do trabalho
-Para registrar seu progresso, selecione Enviar no topo destas instruções.
-
- 
-
-Quando solicitado, selecione Sim.
-
-Depois de alguns minutos, o painel de notas é exibido e mostra quantos pontos você obteve em cada tarefa. Se os resultados não forem exibidos após alguns minutos, selecione Notas no topo destas instruções.
-
- Dica: você pode enviar seu trabalho várias vezes. Depois de fazer as alterações, selecione Enviar novamente. Seu último envio é registrado para o laboratório.
-
- 
-
-Para ver o feedback detalhado sobre seu trabalho, selecione Relatório de envio.
-
- Dica: se você não tiver recebido a pontuação total em alguma verificação, poderá haver detalhes úteis no relatório de envio.
-
- 
-
-Laboratório concluído
- Parabéns! Você concluiu o laboratório.
-
-Selecione Encerrar laboratório no topo da página e Sim para confirmar que você deseja encerrar o laboratório.  
-
-Um painel será exibido com a mensagem: "DELETE has been initiated... (A EXCLUSÃO foi iniciada...) você pode fechar esta caixa de mensagem agora.”
-
- 
-
-Selecione o X no canto superior direito para fechar o painel.
-
- 
-
-© 2023 Amazon Web Services, Inc. e suas afiliadas. Todos os direitos reservados. Este trabalho não pode ser reproduzido nem redistribuído, parcial ou integralmente, sem a permissão prévia por escrito da Amazon Web Services, Inc. A cópia, empréstimo ou venda para fins comerciais é proibida.
+* Selecione o X no canto superior direito para fechar o painel.
