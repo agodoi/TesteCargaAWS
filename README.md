@@ -5,6 +5,7 @@ Neste encontro iremos abordar o crescimento extremo e exponencial de acesso aos 
 ## Objetivos
 
 * Subir 2 EC2: um bastion host e um EC2 como servidor interno
+* Gerar a imagem do EC2 via auto scalling group (template)
 * Adicionar o ELB
 * Adicionar o serviço de Auto Scalling
 * Instalar o K6 no bastion host
