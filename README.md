@@ -367,6 +367,10 @@ Parabéns! Você concluiu um dos laboratórios mais detalhado do curso.
 * Selecione o X no canto superior direito para fechar o painel.
 
 
+
+___________________________________________________________________________________________________________________________________
+
+
 ## Desafio para sua DEV
 
 # Passo-01: Criando a VPC
