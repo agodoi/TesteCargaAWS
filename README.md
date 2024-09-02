@@ -121,16 +121,6 @@ Vários tipos diferentes de balanceador de carga são exibidos:
 
 * **Uso principal:** Implanta e escala appliances de rede virtualizadas (firewalls, IDS/IPS, etc.) de forma transparente. O tráfego é direcionado para essas appliances antes de chegar aos servidores de aplicação. Opera na camada 3 (Rede) do modelo OSI.
 
-**Em resumo:**
-
-* **ALB:** Para aplicações web complexas que precisam de roteamento inteligente.
-* **NLB:** Para aplicações que exigem o máximo de performance e escalabilidade.
-* **GLB:** Para centralizar e gerenciar serviços de segurança de rede de forma escalável. 
-
-**Lembre-se:** A escolha do Load Balancer ideal depende das necessidades específicas da sua aplicação. Se precisar de mais detalhes ou tiver dúvidas sobre qual escolher, fique à vontade para perguntar! 
-
-
-
 Você usará um **Application Load Balancer** que opera no nível de solicitação (camada 7), roteando o tráfego para os destinos (instâncias do EC2, contêineres, endereços IP e funções do Lambda) com base no conteúdo da solicitação. Para saber mais, consulte Comparação de balanceadores de carga.
 
 **2.10)** Em **Application Load Balancer**, selecione **Criar**.
@@ -139,32 +129,35 @@ Você usará um **Application Load Balancer** que opera no nível de solicitaç�
 
 **2.12)** Role para baixo até a seção **Mapeamento de rede** e, depois, em **VPC**, selecione **Lab VPC**.
 
-Agora você especificará quais sub-redes o balanceador de carga deve usar. Será um balanceador de carga voltado para a Internet; portanto, selecione as duas sub-redes públicas.
+Agora você especificará quais sub-redes o balanceador de carga deve usar. Será um balanceador de carga voltado para a Internet; portanto, selecione as duas sub-redes públicas, mas calma que vamos fazer por partes para não dar pau no final.
 
-**2.13)** Escolha a **primeira** Zona de Disponibilidade exibida e selecione **Sub-rede pública 1** no menu suspenso **Sub-rede** exibido abaixo dela.
+**2.12.1)** Escolha a **primeira** Zona de Disponibilidade exibida e selecione **Sub-rede pública 1** no menu suspenso **Sub-rede** exibido abaixo dela.
 
-**2.14)** Escolha a **segunda** Zona de Disponibilidade exibida e selecione **Sub-rede pública 2** no menu suspenso **Sub-rede** exibido abaixo dela.
+**2.12.2)** Escolha a **segunda** Zona de Disponibilidade exibida e selecione **Sub-rede pública 2** no menu suspenso **Sub-rede** exibido abaixo dela.
 
 Agora você terá duas sub-redes selecionadas: **Sub-rede pública 1** e **Sub-rede pública 2**. 
  
 
-**2.15)** Na seção **Grupos de segurança:**, escolha **Grupos de segurança** no menu suspenso e selecione **Web Security Group** (Grupo de segurança da web).
+**2.13)** Na seção **Grupos de segurança:**, escolha **Grupos de segurança** no menu suspenso e selecione **Web Security Group** (Grupo de segurança da web).
 
-Abaixo do menu suspenso, selecione o **X** ao lado do grupo de segurança padrão para removê-lo.
+Abaixo do menu suspenso, selecione o **X** ao lado do grupo de segurança **Default** e clique para removê-lo.
 
 O grupo de segurança **Web Security Group** (Grupo de segurança da web) agora deve ser o único que aparece.
 
-**2.16)** Para a linha **Listener HTTP:80**, defina a ação padrão para encaminhar para **LabGroup**.
+**2.14)** Para a linha **Listener HTTP:80**, defina a ação padrão para encaminhar para **LabGroup**. Lembra disso? É o seu **Grupo de Destino HTTP**.
 
-**2.17)** Role para baixo e selecione **Criar balanceador de carga**. Aguarde e o balanceador de carga terá sido criado com sucesso.
+**2.15)** Role para baixo, deixe tudo como está.
 
-**2.18)** Escolha **Visualizar balanceador de carga**. O balanceador de carga mostrará um estado de **provisionando**. Não há necessidade de esperar até que ele esteja pronto. Siga para a próxima etapa.
+**2.16)** Selecione **Criar balanceador de carga**. 
+
+**2.17)** Aguarde e o balanceador de carga terá sido criado com sucesso.
+
 
 ## Etapa 03 - Criar um modelo de inicialização e um grupo do Auto Scaling
 
 Nesta tarefa, você criará um modelo de execução para seu grupo do Auto Scaling. Um modelo de execução é o que um grupo do Auto Scaling usa para iniciar instâncias do EC2. Ao criar um modelo de execução, você especifica informações para as instâncias, como a AMI, o tipo de instância, um par de chaves e o grupo de segurança.
 
-**3.1)** No painel de navegação à esquerda, selecione **Modelos de execução**.
+**3.1)** No painel de navegação à esquerda, selecione **Modelos de execução** que está em **Instâncias**.
 
 **3.2)** Selecione **Criar modelo de execução**.
 
