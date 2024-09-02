@@ -56,16 +56,17 @@ Isso salvará o conteúdo do disco de inicialização para que novas instâncias
 
 **1.2)** No Console de Gerenciamento da AWS, na caixa de pesquisa ao lado de Serviços, pesquise e **escolha EC2**.
 
-**1.3)** No painel de navegação à esquerda, selecione **Instâncias** e confirme que a instância está em execução. Aguarde até que as Verificações de status de Web Server 1 exibam 2/2 verificações aprovadas. Se necessário, selecione “Atualizar”  para atualizar o status.
+**1.3)** No painel de navegação à esquerda, selecione **Instâncias** e confirme que a instância está em execução. Aguarde até que as Verificações de status de Web Server 1 exibam 2/2 verificações aprovadas. Se necessário, selecione “Atualizar” para atualizar o status.
 
 Agora, você criará uma AMI com base nessa instância.
 
 **1.4)** Selecione  **Web Server 1**.
 
-**1.5)** No menu Ações, selecione **Imagem e modelos** > **Criar imagem** e configure:
+**1.5)** No menu HORIZONTAL DO CONSOLE chamado **Ações**, selecione **Imagem e modelos** > **Criar imagem** e configure:
 
 * Nome da imagem: **WebServerAMI**
 * Descrição da imagem: **Lab AMI for Web Server**
+* Deixei tudo como está sem alterar
 
 **1.6)** Clique em **Criar imagem**. Um banner de confirmação exibe o ID da AMI nova. Você usará essa AMI ao iniciar o grupo do Auto Scaling posteriormente no laboratório.
 
@@ -74,29 +75,63 @@ Agora, você criará uma AMI com base nessa instância.
 
 Nesta tarefa, primeiro você criará um grupo de destino e, depois, um balanceador de carga que pode balancear o tráfego entre várias instâncias do EC2 e Zonas de Disponibilidade.
 
+Lembrando, que o Grupo de Destino é um subitem do ELB que serve para monitorar a integridade de EC2 de destinos que estão de pé, íntegros, registrados e prontos receber solicitações.
+
 **2.1)** No painel de navegação à esquerda, escolha **Grupos de destino**.
 
 **2.2)** Escolha **Criar grupo de destino**.
 
 **2.3)** Escolha um tipo de destino: **Instâncias**.
 
-**2.4)** Nome do grupo de destino, insira: **LabGroup**.
+**2.4)** Nome do grupo de destino, insira: **LabGroup** e deixa todos os itens sem alterar até a próxima etapa.
 
 **2.5)** Selecione **Lab VPC** no menu suspenso VPC.
 
 Análise: **grupos de destino** definem para que local enviar o tráfego que entra no balanceador de carga. O Application Load Balancer pode enviar tráfego para vários grupos de destino com base na URL da solicitação recebida, como ter solicitações de aplicativos móveis indo para outro conjunto de servidores. O aplicativo web usará apenas um grupo de destino.
 
-**2.6)** Selecione **Próximo**. A tela **Registrar destinos** é exibida.
+Dica: Na opção **Protocolo da verificação de integridade**, indica que o Grupo de Destino vai mandar um GET no servidor, e se voltar um **200 OK** e não os seguintes códigos do HTTP. Os códigos de status de resposta HTTP são agrupados em cinco classes: 
 
-Observação: **Destinos** são instâncias individuais que responderão às solicitações do balanceador de carga. Você ainda não tem nenhuma instância de aplicativo web; portanto, pode ignorar esta etapa.
+* Respostas Informativas (100 – 199)
+* Respostas bem-sucedidas (200 – 299)
+* Mensagens de redirecionamento (300 – 399)
+* Respostas de erro do cliente (400 – 499)
+* Respostas de erro do servidor (500 – 599)
+  
+**2.6)** Deixe tudo como está até aqui e selecione **Próximo**. A tela **Registrar destinos** é exibida.
 
-**2.7)** Revise as configurações e selecione **Criar grupo de destino**.
+Observação: **Destinos** são instâncias individuais que responderão às solicitações do balanceador de carga. Você ainda não tem nenhuma instância de aplicativo web rodando; portanto, pode ignorar esta etapa. Caso você veja um Bastion Host ou algum outro EC2, ignore-o.
 
-**2.8)** No painel de navegação à esquerda, escolha **Balanceadores de carga**.
+**2.7)** Revise as configurações sem mexer em nada e selecione **Criar grupo de destino**.
+
+**2.8)** No painel de navegação à esquerda, escolha **Balanceadores de carga** ou **Load Balancers**.
 
 **2.9)** No topo da tela, selecione **Criar balanceador de carga**.
 
-Vários tipos diferentes de balanceador de carga são exibidos. Você usará um **Application Load Balancer** que opera no nível de solicitação (camada 7), roteando o tráfego para os destinos (instâncias do EC2, contêineres, endereços IP e funções do Lambda) com base no conteúdo da solicitação. Para saber mais, consulte Comparação de balanceadores de carga.
+Vários tipos diferentes de balanceador de carga são exibidos:
+
+**Application Load Balancer (ALB)**
+
+* **Uso principal:** Distribui tráfego HTTP/HTTPS entre vários servidores, roteando com base em regras complexas (URL, cabeçalhos, etc.). Ideal para aplicações web modernas com microsserviços. Opera na Camada 7 (Aplicação) do modelo OSI.
+
+**Network Load Balancer (NLB)**
+
+* **Uso principal:** Distribui tráfego TCP/UDP de alta performance entre servidores, com baixo overhead. Ideal para aplicações que precisam de extrema velocidade e escalabilidade, como jogos online ou streaming de vídeo. Opera na Camada 4 (Transporte) do modelo OSI.
+
+**Gateway Load Balancer (GLB)**
+
+* **Uso principal:** Implanta e escala appliances de rede virtualizadas (firewalls, IDS/IPS, etc.) de forma transparente. O tráfego é direcionado para essas appliances antes de chegar aos servidores de aplicação. Opera na camada 3 (Rede) do modelo OSI.
+
+**Em resumo:**
+
+* **ALB:** Para aplicações web complexas que precisam de roteamento inteligente.
+* **NLB:** Para aplicações que exigem o máximo de performance e escalabilidade.
+* **GLB:** Para centralizar e gerenciar serviços de segurança de rede de forma escalável. 
+
+**Lembre-se:** A escolha do Load Balancer ideal depende das necessidades específicas da sua aplicação. Se precisar de mais detalhes ou tiver dúvidas sobre qual escolher, fique à vontade para perguntar! 
+
+
+
+Você usará um **Application Load Balancer** que opera no nível de solicitação (camada 7), roteando o tráfego para os destinos (instâncias do EC2, contêineres, endereços IP e funções do Lambda) com base no conteúdo da solicitação. Para saber mais, consulte Comparação de balanceadores de carga.
 
 **2.10)** Em **Application Load Balancer**, selecione **Criar**.
 
