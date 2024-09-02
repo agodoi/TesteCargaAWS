@@ -101,7 +101,7 @@ Dica: Na opção **Protocolo da verificação de integridade**, indica que o Gru
   
 **2.6)** Deixe tudo como está até aqui e selecione **Próximo**. A tela **Registrar destinos** é exibida.
 
-Observação: **Destinos** são instâncias individuais que responderão às solicitações do balanceador de carga. Você ainda não tem nenhuma instância de aplicativo web rodando; portanto, pode ignorar esta etapa. Caso você veja um Bastion Host ou algum outro EC2, ignore-o.
+Observação: **Destinos** são instâncias individuais que responderão às solicitações do balanceador de carga. Você ainda não tem nenhuma instância de aplicativo web rodando; portanto, pode ignorar esta etapa. Caso você veja um Bastion Host ou algum outro EC2, ignore-o. NÃO MARQUE NADA! Siga em frente.
 
 **2.7)** Revise as configurações sem mexer em nada e selecione **Criar grupo de destino**.
 
@@ -146,7 +146,7 @@ Abaixo do menu suspenso, selecione o **X** ao lado do grupo de segurança **Defa
 
 O grupo de segurança **Web Security Group** (Grupo de segurança da web) agora deve ser o único que aparece.
 
-**2.14)** Para a linha **Listener HTTP:80**, defina a ação padrão para encaminhar para **LabGroup**. Lembra disso? É o seu **Grupo de Destino HTTP**.
+**2.14)** Para a linha **Listener HTTP:80**, defina a ação padrão para encaminhar para **LabGroup**. Lembra disso? É o seu **Grupo de Destino HTTP**. Mas se nessa hora estiver vazio, deu ruim na etapa **2.4**, volte para o início do PASSO-02 e refaça tudo.
 
 **2.15)** Role para baixo, deixe tudo como está.
 
@@ -199,6 +199,8 @@ Nesta tarefa, você criará um modelo de execução para seu grupo do Auto Scali
 
 **3.6.3)** Deixe o restante como está e selecione **Próximo**.
 
+### Presta a atenção à esquerda que você está configurando ETAPAS 1 a 7...
+
 **3.7)** Configure os detalhes na **Etapa 2** (Selecione as opções para executar a instância):
 
 **3.7.1)** VPC: selecione **Lab VPC**.
@@ -209,9 +211,11 @@ Nesta tarefa, você criará um modelo de execução para seu grupo do Auto Scali
 
 **3.8)** Configure os detalhes na **Etapa 3** (Configure as opções avançadas):
 
-**3.8.1)** Selecione **Anexar a um balanceador de carga existente** (caixinha do meio). Grupos de destino de balanceador de carga existentes: selecione **LabGroup**.
+**3.8.1)** Selecione **Anexar a um balanceador de carga existente** (caixinha do meio). Grupos de destino de balanceador de carga existentes: selecione **LabGroup | HTTP**.
 
 **3.8.2)** Mais para baixo, encontre o título **Configurações adicionais**, selecione **Enable group metrics collection within CloudWatch** ou **Habilitar coleta de métricas de grupo no CloudWatch**. Essa ação captura métricas em intervalos de um minuto, o que permite que o Auto Scaling reaja rapidamente a mudanças nos padrões de uso. Selecione **Próximo**.
+
+### Agora você está na ETAPA 4
 
 **3.9)** Configure os detalhes na **Etapa 4** (Configure o tamanho do grupo e as políticas de scaling: opcional). Mexa apanas onde essa instrução lhe pede para mexer.
 
@@ -229,13 +233,17 @@ Isso permitirá que o Auto Scaling adicione/remova instâncias automaticamente, 
 
 **3.9.6)** Nome da política de escalabilidade: **LabScalingPolicy**.
 
-**3.9.7)** Tipo de métrica: **Utilização média da CPU**.
+**3.9.7)** Tipo de métrica: **Média de utilização da CPU**.
 
-**3.9.8)** Valor de destino: **60**   . Isso informa ao Auto Scaling para manter uma utilização média de CPU em todas as instâncias em 60%. O Auto Scaling adicionará ou removerá automaticamente a capacidade conforme necessário para manter a métrica no valor de destino especificado ou próxima dele. Ele se ajusta às flutuações na métrica devido a um padrão de carga flutuante.
+**3.9.8)** Valor de destino: **60**. Isso informa ao Auto Scaling para manter uma utilização média de CPU em todas as instâncias em 60%. O Auto Scaling adicionará ou removerá automaticamente a capacidade conforme necessário para manter a métrica no valor de destino especificado ou próxima dele. Ele se ajusta às flutuações na métrica devido a um padrão de carga flutuante.
 
-**3.9.9)** Selecione **Próximo**.
+**3.9.9)** Não mexa em mais nada e selecione **Próximo**.
 
-**3.10)** Configure os detalhes na **Etapa 5** (Adicione notificações: opcional): o Auto Scaling pode enviar uma notificação quando ocorre um evento de scaling. Você usará as configurações padrão. Selecione **Próximo**.
+### Agora você está na ETAPA 05
+
+**3.10)** Configure os detalhes na **Etapa 5** (Adicione notificações: opcional): o Auto Scaling pode enviar uma notificação quando ocorre um evento de scaling. Você usará as configurações padrão. Para essa aula, não mexa em nada e selecione **Próximo**, mas você poderá fazer isso no seu projeto depois.
+
+### Agora você está na ETAPA 06
 
 **3.11)** Configure os detalhes na **Etapa 6** (Adicione tags: opcional): as tags aplicadas ao grupo do Auto Scaling serão propagadas automaticamente para as instâncias executadas. 
 
@@ -247,7 +255,9 @@ Isso permitirá que o Auto Scaling adicione/remova instâncias automaticamente, 
 
 **3.11.4)** Selecione **Próximo**.
 
-**3.12)** Escolha **Criar grupo do Auto Scaling**. O grupo do Auto Scaling mostrará inicialmente uma contagem de instâncias igual a zero, mas novas instâncias serão executadas para atingir a contagem desejada de **duas instâncias**.
+### Agora você está na ETAPA 07
+
+**3.12)** Nessa etapa não faremos nada. Só observe o que foi feito e escolha **Criar grupo do Auto Scaling**. O grupo do Auto Scaling mostrará inicialmente uma contagem de instâncias igual a zero, mas novas instâncias serão executadas para atingir a contagem desejada de **duas instâncias**.
 
 ## Passo-04: Verificar se o balanceamento de carga está funcionando
 
@@ -257,7 +267,7 @@ Nesta tarefa, você verificará se o balanceamento de carga está funcionando co
 
 **4.2)** No painel de navegação à esquerda, escolha **Grupos de destino**. Selecione **LabGroup**.
 
-**4.3)** Escolha a guia **Destinos**. Duas instâncias de destino chamadas **Lab Instance** (Instância do laboratório) devem ser listadas no grupo de destino.
+**4.3)** Escolha o menu horizontal **Destinos**. Duas instâncias de destino chamadas **Lab Instance** (Instância do laboratório) devem ser listadas no grupo de destino. Se estiver vazio, **rodinha da Skoll desce redondo** para atualizar.
 
 **4.3)** Aguarde até que o **Status** de ambas as instâncias mude para íntegro. Selecione **Atualizar** no canto superior direito para verificar se há atualizações, caso necessário.
 
@@ -267,9 +277,13 @@ O status íntegro indica que a instância passou na health check do balanceador 
 
 **4.5)** Selecione o balanceador de carga **LabELB**.
 
-**4.6)** No painel **Detalhes**, copie o **Nome do DNS** do balanceador de carga, omitindo “(Registro A)”. Deve ser semelhante a: **LabELB-1998580470.us-west-2.elb.amazonaws.com**
+**4.6)** No painel **Detalhes**, copie o **Nome do DNS** (não é o **ARN do load balancer** e sim o endereço à direita dele, algo do tipo **LabELB-1152052616.us-east-1.elb.amazonaws.com**) do balanceador de carga, omitindo “(Registro A)”.
 
-**4.7)** Abra uma nova guia do navegador da web, cole o nome do DNS que você acabou de copiar e pressione Enter. O aplicativo deve aparecer em seu navegador. Isso indica que o balanceador de carga recebeu a solicitação, a enviou para uma das instâncias do EC2 e, em seguida, repassou o resultado.
+**4.7)** Abra uma nova guia do navegador da web, cole o nome do DNS que você acabou de copiar e pressione Enter. O aplicativo deve aparecer em seu navegador. Você deve se lembrar desse app porque você já fez uma agenda com ele.
+
+Se você chegou até aqui, Parabéns!
+
+Isso indica que o balanceador de carga recebeu a solicitação, a enviou para uma das instâncias do EC2 e, em seguida, repassou o resultado.
 
 ## Passo-05: Testar o Auto Scaling
 
@@ -277,23 +291,23 @@ Você criou um grupo de Auto Scaling com um mínimo de duas instâncias e um má
 
 **5.1)** Volte para o Console de Gerenciamento da AWS, mas não feche a guia da aplicação. Você retornará a ela em breve.
 
-**5.2)** Na caixa de pesquisa ao lado de **Serviços**, pesquise e selecione **CloudWatch**.
+**5.2)** Na caixa de pesquisa ao lado de **Serviços**, pesquise e selecione **CloudWatch**. Deixe uma Estrelinha marcada que tem ao lado dele que você vai criando seu atalho personalizado.
  
-**5.3)** No painel de navegação à esquerda, selecione **Todos os alarmes**.
+**5.3)** No painel de navegação à esquerda, expanda **Alarmes** e selecione **Todos os alarmes**.
 
-Dois alarmes serão exibidos. Foram criados automaticamente pelo grupo de Auto Scaling. Manterão automaticamente a carga média da CPU próxima a 60%, permanecendo também dentro da limitação de ter duas a seis instâncias.
+Dois alarmes serão exibidos. Foram criados automaticamente pelo grupo de Auto Scaling. Manterão automaticamente a carga média da CPU próxima a 60%, permanecendo também dentro da limitação de ter de 2 a 6 instâncias.
 
 ### ATENÇÃO: siga estas etapas somente se você não vir os alarmes em 60 segundos.
 
 **5.4)** No menu **Serviços**, selecione **EC2**.
 
-**5.5)** No painel de navegação esquerdo, escolha **Grupos do Auto Scaling**. 
+**5.5)** No painel de navegação esquerdo, escolha **Grupos do Auto Scaling** (um do últimos do menu vertical esquerdo).
 
 **5.6)** Selecione **Lab Auto Scaling Group** (Grupo do Auto Scaling do laboratório).
 
-**5.7)** Na metade inferior da página, escolha a guia **Auto Scaling**.
+**5.7)** No menu horizontal na metade da página, escolha a guia **Auto Scaling** ou **Escalabilidade Automática**.
 
-**5.8)** Selecione **LabScalingPolicy**.
+**5.8)** Selecione a caixinha **LabScalingPolicy**. Você vai ver que tem onde ticar nessa opção.   
 
 **5.9)** Selecione **Ações** e **Editar**.
 
@@ -303,7 +317,7 @@ Dois alarmes serão exibidos. Foram criados automaticamente pelo grupo de Auto S
 
 **5.12)** No painel de navegação à esquerda, selecione **Todos os alarmes** e confirme se há dois alarmes.
 
-**5.13)** Selecione o alarme **OK**, que tem **AlarmHigh** no nome. Se nenhum alarme estiver mostrando OK, aguarde um minuto e selecione **Atualizar** no canto superior direito até que o status do alarme mude. Mas atenção: **OK** indica que o alarme **NÃO** foi acionado. É o alarme para **Utilização de CPU > 60** (lembra dos 60% de capacidade computacional? volte no passo **3.9.8**), que adicionará instâncias quando a CPU média estiver alta. O gráfico deve mostrar níveis muito baixos de CPU no momento. Agora, você informará ao aplicativo para executar cálculos que devem aumentar o nível de CPU.
+**5.13)** Selecione o alarme **OK**, que tem **AlarmHigh** no nome. Se nenhum alarme estiver mostrando OK, aguarde um minuto e selecione **Atualizar** no canto superior direito até que o status do alarme mude. Mas atenção: **OK** indica que o alarme **NÃO** foi acionado. É o alarme para **Utilização de CPU > 60** (lembra dos 60% de capacidade computacional criado no passo **3.9.8**?), que adicionará instâncias quando a CPU média estiver alta. O gráfico deve mostrar níveis muito baixos de CPU no momento. Agora, você informará ao aplicativo para executar cálculos que devem aumentar o nível de CPU.
 
 **5.14)** Volte para a guia do navegador com o aplicativo web.
 
@@ -311,18 +325,21 @@ Dois alarmes serão exibidos. Foram criados automaticamente pelo grupo de Auto S
 
 **5.16)** Volte para a guia do navegador com o console do **CloudWatch**. Em menos de cinco minutos, o alarme **AlarmLow** deverá mudar para **OK** e o status do alarme **AlarmHigh** deverá mudar para **Em alarme**. Você pode selecionar **Atualizar** no canto superior direito a cada 60 segundos para atualizar a exibição. Você deve ver o gráfico **AlarmHigh** indicando uma porcentagem crescente de CPU. Depois de cruzar a linha de 60% por mais de 3 minutos, o Auto Scaling acionará a adição de instâncias adicionais.
 
-**5.17)** Aguarde até que o alarme **AlarmHigh** entre no estado **Em alarme**. Agora você pode visualizar as instâncias adicionais que foram executadas.
+**5.17)** Aguarde até que o alarme **AlarmHigh** entre no estado em vermelho **Em alarme**. Agora você pode visualizar as instâncias adicionais que foram executadas.
 
 **5.18)** Na caixa de pesquisa ao lado de **Serviços**, pesquise e selecione **EC2**.
 
 **5.14)** No painel de navegação à esquerda, selecione **Instâncias**. Agora deve haver mais de duas instâncias rotuladas como **Lab Instance** em execução. As instâncias novas foram criadas pelo Auto Scaling em resposta ao alarme CloudWatch.
+
+### Conclusão: sua estrutura está em pleno autoscalling. Esse é um dos pontos chaves da AWS!
+A aplicação http://labelb-1152052616.us-east-1.elb.amazonaws.com/load.php não encerra o auto teste de carga. Portanto, não vamos ver o EC2 sendo "devolvido".
 
 
 ## Passo-06: Encerrar a instância Web Server 1
 
 Nesta tarefa, você encerrará a instância **Web Server 1**. Essa instância foi utilizada para criar a AMI usada por seu grupo do Auto Scaling, mas ela não é mais necessária.
 
-**6.1)** Selecione  Web Server 1 e verifique se é a única instância selecionada.
+**6.1)** Selecione  Web Server 1 e verifique se é a única instância selecionada. Se você desligar o Web Server 1, as **cópias** Lab Instance serão devolvidas.
 
 **6.2)** No menu **Estado da instância**, selecione **Estado da instância** > **Encerrar instância**.
 
