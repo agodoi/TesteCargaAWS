@@ -365,3 +365,187 @@ Parabéns! Você concluiu um dos laboratórios mais detalhado do curso.
 * Um painel será exibido com a mensagem: "DELETE has been initiated... (A EXCLUSÃO foi iniciada...) você pode fechar esta caixa de mensagem agora.”
 
 * Selecione o X no canto superior direito para fechar o painel.
+
+
+## Desafio para sua DEV
+
+# Passo-01: Criando a VPC
+
+**1.1)** Busque por VPC no console da AWS;
+
+**1.2)** Clique no botão laranja CRIAR;
+
+**1.3)** Selecione **VPC e muito mais**.
+
+**1.4)** No campo **Tag de nome** digite **VPC_Arquitetura_Corp**.
+
+**1.5)** Bloco CIDR IPV4 digite **192.168.0.0/22**
+
+**1.6)** As demais opções, você não precisa mexer e basta confirmar no botão laranja.
+
+Nessa etapa, as subredes públicas e privadas já serão criadas, o IGW, NAT, tabelas de rotas, grupos de segurança, etc, tudo será automaticamnete criado.
+
+# Passo-06: Criando EC2 - Bastion Host (público)
+
+Nesse passo você já deve estar ficando bom, pois já vimos EC2 em outra aula! Vamos criar 2 instâncias EC2, sendo uma na sub-rede pública e outra na sub-rede privada. O EC2 da sub-rede pública vai se comportar como **Bastion Host** e o EC2 da sub-rede privada, será seu servidor dinâmico, por exemplo.
+
+**6.1)** Buscando por EC2 na lupa do console, crie uma instância que será pública, nomeie-a como **BastionHostLoadTest**, escolha **Ubuntu**, deixe como **Tipo de instância** qualificada para o nível gratuito, gere uma par de chave com o nome **PEM_EC2Publico_ArqCorp**, edite as opções de **Configurações de rede**, aponte para a **VPC_Arquitetura_Corp**, aponte para sub-rede pública recém criada, deixe **Atribuir IP público automaticamente** no **habilitar**, no **Firewall** deixe marcado a opção **Criar grupo de segurança**, coloque um nome no seu **Grupo de segurança** como **GS_EC2Publico** habilite apenas a opção do SSH e confirme no botão laranja.
+
+Mas atenção: esse IP público que você está recebendo agora nessa instância vai mudar se você desligar o EC2.
+
+## Passo-07: Criando outro EC2 - Servidor (privado)
+
+**7.1)** Faça o mesmo para o EC2 privado criando uma nova instância, nomeie-a como **EC2_Privado_ArqCorp**, escolha **Ubuntu**, deixe como **Tipo de instância** qualificada para o nível gratuito, gere uma par de chave com o nome **PEM_EC2Privado_ArqCorp**, edite as opções de **Configurações de rede**, aponte para a **VPC_Arquitetura_Corp**, aponte para sub-rede privada recém criada, deixe **Atribuir IP público automaticamente** no **desabilitar**, no **Firewall** deixe marcado a opção **Criar grupo de segurança**, coloque um nome no seu **Grupo de segurança** como **GS_EC2Privado** habilite as opções o **SSH** e aponte **GS_EC2Publico** (para apontar, na opção **Origem**, deixe **Personalizado** que vai aparecer o grupo de segurança mencionado). Caso precise no futuro (mas não agora para essa aula) adicione **HTTP** e **HTTPS** com **0.0.0.0/0**. Nesse caso, seu EC2 estará disponível para acesso HTTP e HTTPS para fora da sua VPC. Confirme no botão laranja.
+
+## Passo-08 (testes):
+
+Confira se seu EC2 privado (que é um servidor interno) está acessível a partir do Bastion Host. Para isso:
+
+**8.1)** Faça uma conexão **ssh -i** no seu Bastion Host usando o IP público (que você pega no botão **Conectar** das propriedade do EC2 externo chamado Bastion Host;
+
+**8.2)** Crie uma pasta raiz **mkdir** chamada **keys**. 
+
+**8.3)** Dentro dessa pasta, dê um **sudo nano BastionHostLoadTest.pem** para criar o arquivo PEM, copie o texto da sua chave que deve estar na sua área do seu PC, cole no arquivo, dê um **Ctrl+S** e depois um **Ctrl+X** para salvar e sair.
+
+**8.4)** E dê outro **ssh -i** mas usando o endereço privado do EC2 privado. 
+
+**8.5)** Você deve estar dentro do EC2 interno usando o EC2 externo.
+
+**8.6)** Agora tente acessar o seu EC2 interno como se fosse o EC2 externo, isto é, execute o item **(8.1)** dessa passo mas usando o IP privado do botão **Conectar** do seu EC2 privado. Funcionou? Não! Por que? Seu EC2 interno possui IP público? Ele está com acesso ao IGW do EC2 externo? Não!
+
+Conclusões: seu EC2 público está protegendo o EC2 interno. Você pode ter quantos EC2 internos desejar. Basta armazenar as chaves internas dentro do EC2 público. Mas cuidado com os acessos do EC2 público. Ele está como regra de entrada o 0.0.0.0/0 e isso não é legal. O correto é você colocar o IP fixo externo da sua empresa. Assim, somente os DEVOPS vão acessar esse EC2 externo.
+
+**8.7)** Outro teste é o EC2 privado não consegue acessar a Internet para se atualizar. Então o NAT Gateway precisa enchegar esse caminho para fora. Da forma que está agora, não consiguiremos atualizar nada no EC2 privado. **O segredo é assossiar o NAT Gateway à sub-rede pública** que você fez no Passo-05 **5.2**. 
+
+**8.8)** **Tente atualizar o Ubuntu do seu EC2 interno** que vai dar certo [sudo apt-get update]. E se você tentar acessar o EC2 privado usando qualquer IP (público ou privado), não vai funcionar porque o NAT Gateway só permite o fluxo de dentro para fora e não de fora para dentro.
+
+# Passo-09: Criando um serviço S3
+## Por padrão, todo S3 é totalmente bloqueado. Sua função agora é liberar as devidas funções dele.
+
+Esse S3 serve para você adicionar seu site estático e não arquivos corporativos da sua empresa, ou logs de acesso, ou dados de clientes, pois esse S3 estará visível na Internet. Se você precisa de um S3 mais seguro, crie outro dentro da VPC. Deixar um S3 visível na Internet é o principal motivo de vazamento de dados sensíveis ou pessoal.
+
+**9.1)** Digite S3 na lupa do console.
+
+**9.2)** Clique em **Criar bucket** (botão laranja).
+
+**9.3)** No campo **Nome do bucket** digite algor parecido com **s3_arqcoporativa** (os nomes de buckets são exclusivos mundialmente porque possuem URL exclusivas, logo você terá que criar o seu nome exlusivo). Mas atenção: não pode ter letras maiúsculas e nem começar o nome com número.
+
+**9.4)** Em região, aponte para o **us-east-1**.
+
+**9.5)** Deixa todas as demais configurações básicas como estão e clique no botão laranja **Criar bucket**.
+
+**9.6)** Retorne em suas instâncias de buckets e clique no bucket que você acabou de criar (link azul) para configurá-los. Note que ele está como **Bucket e objetos não públicos**.
+
+**9.6.1)** Dentro das configurações do Bucket, procure pela aba **Propriedades**, vá até o final da página e em **Hospedagem de site estático**, clique em **Editar** e depois, **ativar**.
+
+**9.6.2)** Em **Tipo de hospedagem** deixe em **Hospedar um site estático**.
+
+**9.6.3)** Em **Documento de índice** coloque o nome do arquivo-fonte do seu site, que nesse caso, pode ser **index.html**. Você deve salvar esse código abaixo em arquivo texto tipo *html* e vai usar numa etapa futura, não agora. Então, apenas salve esse código num arquivo **index.html** aí no seu HD local.
+
+```
+<!doctype html>
+<html>
+  <head>
+    <title>This is the title of the webpage!</title>
+  </head>
+  <body>
+    <p>This is an example paragraph. Anything in the <strong>body</strong> tag will appear on the page, just like this <strong>p</strong> tag and its contents.</p>
+  </body>
+</html>
+
+```
+
+**9.6.4)** No campo **Documento de erro - opcional** você pode deixar em branco ou elaborar uma página personalizada para quando der um erro em seu site ou até usar a mesma arquivo **index.html**. Para hoje, deixe esse campo em branco
+
+**9.6.5)** Clique no botão laranja no final da página para confirmar.
+
+**9.6.6)** Se você retornar em **Propriedades** após a confirmação, você terá o link do seu S3 instanciado, algo assim: **http://arquiteturacorp.s3-website-us-east-1.amazonaws.com/**, e se você clicar nesse link, constará **erro 403 Forbidden, Code: AccessDenied**.
+
+**9.7)** Você pode carregar um arquivo qualquer no seu S3, clicando em **Objetos**. E ainda pode criar uma pasta qualquer chamada **Teste**. Então, suba um arquivo qualquer e crie uma pasta qualquer em seu S3. Veja a figura a seguir que demonstra como fica o seu HD virtual lá na AWS.
+
+**9.8)** Você precisa liberar acesso ao público do S3. Vá no botão **Permissões**, depois em **Bloquear acesso público (configurações do bucket)** clique em **Editar**, depois desmarque **Bloquear todo o acesso público** e **Salvar alterações** e digite **confirmar**.
+
+
+<picture>
+   <source media="(prefers-color-scheme: light)" srcset="https://github.com/agodoi/ARQUITETURA/blob/main/imgs/objetos.png">
+   <img alt="Objetos" src="[YOUR-DEFAULT-IMAGE](https://github.com/agodoi/ARQUITETURA/blob/main/imgs/objetos.png)">
+</picture>
+
+
+**9.8)** Nessa etapa, vamos definir as permissões de acesso ao S3. Por padrão, ele totalmente bloqueado. Clique na aba **Permissões** e perceba que em **Visão geral das permissões** que está como **bucket e objetos não públicos**. Isso significa que o seu S3 ou site não está visível externamente. Então, em **Bloquear acesso público**, você clica em **Editar** e desmarque a opção **Bloquear todo o acesso público** e clique no botão laranja **Salvar alterações**. Note que aparecerá uma tela de confirmação novamente, conforme abaixo, onde você vai ter que digitar **confirmar**. Note que os vazamentos de dados ocorrem devido às configurações erradas e não *sem querer querendo*.
+
+
+<picture>
+   <source media="(prefers-color-scheme: light)" srcset="https://github.com/agodoi/ARQUITETURA/blob/main/imgs/confirmacao_desbloqueio.png">
+   <img alt="Confirmação" src="[YOUR-DEFAULT-IMAGE](https://github.com/agodoi/ARQUITETURA/blob/main/imgs/confirmacao_desbloqueio.png)">
+</picture>
+
+Agora, vá novamente na sua lista de Buckets e veja como está o **Acesso** na frente do seu bucket. Ele deve estar assim: **Os objetos podem ser públicos**, igual ao da imagem abaixo, então o S3 ainda não é público, mas pode ser...
+
+<picture>
+   <source media="(prefers-color-scheme: light)" srcset="https://github.com/agodoi/ARQUITETURA/blob/main/imgs/podem_ser_publicos.png">
+   <img alt="Podem Ser Públicos" src="[YOUR-DEFAULT-IMAGE](https://github.com/agodoi/ARQUITETURA/blob/main/imgs/podem_ser_publicos.png)">
+</picture>
+
+**9.10)** Agora, vamos gerar uma **Apólice do bucket**, que vai liberar os acessos ao seu S3. Para isso, clique em **Permissões** do seu bucket e em, **Política do bucket**, clique em **Editar** e depois **Gerador de Apólices**. Daí você vai ver uma tela como a seguir:
+
+
+<picture>
+   <source media="(prefers-color-scheme: light)" srcset="https://github.com/agodoi/ARQUITETURA/blob/main/imgs/gerador_politica.png">
+   <img alt="Gerador de Política" src="[YOUR-DEFAULT-IMAGE](https://github.com/agodoi/ARQUITETURA/blob/main/imgs/gerador_politica.png)">
+</picture>
+
+
+**9.11)** Em **Step 1 - Select Policy Type**, selecione **S3 Bucket Policy**, em **Step 2 - Add Statements(s)**, marque **Allow** em **Principal**, coloque asterisco para indicar qualquer objeto. Em **Actions** escolha **GetObject** que serve para liberar acesso aos objetos do seu site, para aparecer na sua tela do navegador. Mas note que não será possível deletar, atualizar ou colocar nada (do CRUD, somente o R - Read estará liberado). No campo **ARN (Amazon Resource Name)** você pega lá no seu bucket na aba **Propriedades**. Tem que ser algo do tipo *arn:aws:s3:::arquiteturacorp*. MAS ATENÇÃO! Adicione um /* logo após seu ARN. Então ficaria algo assim:
+
+
+### arn:aws:s3:::arquiteturacorp/*
+
+Por fim, clique em **Add Statement** e depois, confirme em **Generate Policy** para gerar sua política. O resultado será um arquivo JSON com sua apólice, algo do tipo:
+```
+{
+  "Id": "Policy1692046481274",
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "Stmt1692046458290",
+      "Action": [
+        "s3:GetObject"
+      ],
+      "Effect": "Allow",
+      "Resource": "arn:aws:s3:::arquiteturacorp/*",
+      "Principal": "*"
+    }
+  ]
+}
+```
+
+Agora, dê um Ctrl+C nesse JSON para você levar lá no bucket criado e editar a **Permissões** dele. 
+
+<picture>
+   <source media="(prefers-color-scheme: light)" srcset="https://github.com/agodoi/ArquiteturaCorp/blob/main/imgs/gerador_politica-2.png">
+   <img alt="Gerador de Política" src="[YOUR-DEFAULT-IMAGE](https://github.com/agodoi/ArquiteturaCorp/blob/main/imgs/gerador_politica-2.png)">
+</picture>
+
+Vá na aba **Permissões** do seu Bucket, clique em **Política do bucket** e cole esse JSON lá e confirme no SALVAR. Veja a figura a seguir para entender melhor.
+
+### Observe que seu bucket agora está público, e com um ícone de atenção.
+
+Para fazer um teste, acesse o link do seu S3 e verá que o erro terá mudado agora. Ele está acessível externamente, mas não tem o arquivo **index.html**. Veja a imagem a seguir para entender melhor.
+
+
+<picture>
+   <source media="(prefers-color-scheme: light)" srcset="https://github.com/agodoi/ARQUITETURA/blob/main/imgs/erro404-sem-indexHTML.png">
+   <img alt="Gerador de Política" src="[YOUR-DEFAULT-IMAGE](https://github.com/agodoi/ARQUITETURA/blob/main/imgs/erro404-sem-indexHTML.png)">
+</picture>
+
+
+**9.12)** Agora, basta você colocar um arquivo index.html dentro do seu S3 como se fosse um objeto. Arraste o seu index.html para dentro e salva. Veja a imagem de como fica no final:
+
+
+<picture>
+   <source media="(prefers-color-scheme: light)" srcset="https://github.com/agodoi/ARQUITETURA/blob/main/imgs/index-html-S3.png">
+   <img alt="Gerador de Política" src="[YOUR-DEFAULT-IMAGE](https://github.com/agodoi/ARQUITETURA/blob/main/imgs/index-html-S3.png)">
+</picture>
+
+Agora você pode atualizar o seu link do S3 que o seu site estático estará no ar.
