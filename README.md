@@ -46,7 +46,7 @@ O Auto Scaling ajuda a manter a disponibilidade da aplicação e permite aumenta
 
 ## Passo-01: Criar uma AMI para o Auto Scaling
 
-Nesta tarefa, você criará uma AMI com a instância Web Server 1 existente. 
+Nesta tarefa, você criará uma AMI com a instância Web Server 1 existente. Será o mesmo Web Server da instrução [https://github.com/agodoi/EC2-RDS](https://github.com/agodoi/EC2-RDS)
 
 AMI é a sigla para Amazon Machine Image, ou Imagem de Máquina da Amazon, que é um tipo de dispositivo virtual fornecido pela AWS para criar uma máquina no Amazon Elastic Compute Cloud (EC2).
 
