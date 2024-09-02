@@ -56,7 +56,7 @@ Isso salvará o conteúdo do disco de inicialização para que novas instâncias
 
 **1.2)** No Console de Gerenciamento da AWS, na caixa de pesquisa ao lado de Serviços, pesquise e **escolha EC2**.
 
-**1.3)** No painel de navegação à esquerda, selecione **Instâncias** e confirme que a instância está em execução. Aguarde até que as Verificações de status de Web Server 1 exibam 2/2 verificações aprovadas. Se necessário, selecione “Atualizar” para atualizar o status.
+**1.3)** No painel de navegação à esquerda, selecione **Instâncias** e confirme que a instância está em execução. Aguarde até que as Verificações de status de Web Server 1 exibam 2/2 **verificações aprovadas** em verde. Se necessário, selecione “Atualizar” para atualizar o status.
 
 Agora, você criará uma AMI com base nessa instância.
 
@@ -68,7 +68,9 @@ Agora, você criará uma AMI com base nessa instância.
 * Descrição da imagem: **Lab AMI for Web Server**
 * Deixei tudo como está sem alterar
 
-**1.6)** Clique em **Criar imagem**. Um banner de confirmação exibe o ID da AMI nova. Você usará essa AMI ao iniciar o grupo do Auto Scaling posteriormente no laboratório.
+**1.6)** Clique em **Criar imagem**. Um banner de confirmação exibe o ID da AMI nova. 
+
+Você usará essa AMI ao iniciar o grupo do Auto Scaling posteriormente no laboratório.
 
 
 ## Passo-02: Criar um ELB
@@ -77,7 +79,7 @@ Nesta tarefa, primeiro você criará um grupo de destino e, depois, um balancead
 
 Lembrando, que o Grupo de Destino é um subitem do ELB que serve para monitorar a integridade de EC2 de destinos que estão de pé, íntegros, registrados e prontos receber solicitações.
 
-**2.1)** No painel de navegação à esquerda, escolha **Grupos de destino**.
+**2.1)** No painel de navegação à esquerda, escolha **Grupos de destino** que está dentro de **Balanceamento de carga**.
 
 **2.2)** Escolha **Criar grupo de destino**.
 
@@ -87,7 +89,7 @@ Lembrando, que o Grupo de Destino é um subitem do ELB que serve para monitorar 
 
 **2.5)** Selecione **Lab VPC** no menu suspenso VPC.
 
-Análise: **grupos de destino** definem para que local enviar o tráfego que entra no balanceador de carga. O Application Load Balancer pode enviar tráfego para vários grupos de destino com base na URL da solicitação recebida, como ter solicitações de aplicativos móveis indo para outro conjunto de servidores. O aplicativo web usará apenas um grupo de destino.
+Análise: **grupos de destino** definem para qual local enviar o tráfego que entra no balanceador de carga. O Application Load Balancer pode enviar tráfego para vários grupos de destino com base na URL da solicitação recebida, como ter solicitações de aplicativos móveis indo para outro conjunto de servidores. O aplicativo web usará apenas um grupo de destino.
 
 Dica: Na opção **Protocolo da verificação de integridade**, indica que o Grupo de Destino vai mandar um GET no servidor, e se voltar um **200 OK** e não os seguintes códigos do HTTP. Os códigos de status de resposta HTTP são agrupados em cinco classes: 
 
@@ -165,17 +167,17 @@ Nesta tarefa, você criará um modelo de execução para seu grupo do Auto Scali
 
 **3.3.1)** Nome do modelo de execução: **LabConfig**
 
-**3.3.2)** Em **Auto Scaling guidance** (Orientação sobre o Auto Scaling), selecione **Provide guidance to help me set up a template that I can use with EC2 Auto Scaling** (Fornecer orientação para me ajudar a configurar um modelo que eu possa usar com o EC2 Auto Scaling).
+**3.3.2)** Em **Auto Scaling guidance** (Orientação sobre o Auto Scaling), selecione **Provide guidance to help me set up a template that I can use with EC2 Auto Scaling** ou **Fornecer orientação para me ajudar a configurar um modelo que eu possa usar com o EC2 Auto Scaling**.
 
 **3.3.3)** Na área **Application and OS Images** (Amazon Machine Image) (Imagens da aplicação e do SO [Imagem de Máquina da Amazon]), selecione **Minhas AMIs**.
 
 **3.3.4)** Imagem de máquina da Amazon (AMI): escolha **Web Server AMI** (AMI do servidor web).
 
-**3.3.5)** Tipo de instância: selecione **t2.micro**.
+**3.3.5)** Tipo de instância: selecione **t2.micro** (que é o nível gratuito).
 
 **3.3.6)** Nome do par de chaves: selecione **vockey**.
 
-**3.3.7)** Firewall (grupos de segurança), escolha **Selecionar grupo de segurança existente**.
+**3.3.7)** Firewall (grupos de segurança), confirme se está marcado **Selecionar grupo de segurança existente**.
 
 **3.3.8)** Grupos de segurança: escolha **Web Security Group** (Grupo de segurança da web).
 
@@ -183,9 +185,9 @@ Nesta tarefa, você criará um modelo de execução para seu grupo do Auto Scali
 
 **3.3.10)** Role para baixo até a configuração **Monitoramento do CloudWatch detalhado**. Selecione **Habilitar**. Nota: isso permitirá que o Auto Scaling reaja rapidamente a alterações na utilização.
 
-**3.3.11)** Selecione **Criar modelo de execução**. A seguir, você criará um grupo do Auto Scaling que usa esse modelo de execução.
+**3.3.11)** Deixe todo o restante do jeito que está e clique no botão laranja **Criar modelo de execução**. A seguir, você criará um grupo do Auto Scaling que usa esse modelo de execução.
 
-**3.4)** Na caixa de diálogo “Sucesso”, selecione o modelo de execução **LabConfig**.
+**3.4)** Na caixa de diálogo de tarja verde “Êxito”, selecione o modelo de execução **LabConfig**.
 
 **3.5)** No menu **Ações**, selecione **Criar grupo do Auto Scaling**.
 
@@ -195,53 +197,57 @@ Nesta tarefa, você criará um modelo de execução para seu grupo do Auto Scali
 
 **3.6.2)** Modelo de execução: confirme se o modelo **LabConfig** que você acabou de criar foi selecionado.
 
-**3.6.3)** Selecione **Próximo**.
+**3.6.3)** Deixe o restante como está e selecione **Próximo**.
 
 **3.7)** Configure os detalhes na **Etapa 2** (Selecione as opções para executar a instância):
 
 **3.7.1)** VPC: selecione **Lab VPC**.
 
-**3.7.2)** Zonas de disponibilidade e sub-redes: escolha **Sub-rede privada 1** e **Sub-rede privada 2**.
+**3.7.2)** Zonas de disponibilidade e sub-redes: escolha **Sub-rede privada 1** e **Sub-rede privada 2**. Agora vc está arrumando a rede interna, porque a rede exeterna foi resolvida na etapa anterior.
 
 **3.7.3)** Selecione **Próximo**.
 
 **3.8)** Configure os detalhes na **Etapa 3** (Configure as opções avançadas):
 
-**3.8.1)** Selecione **Anexar a um balanceador de carga existente**. Grupos de destino de balanceador de carga existentes: selecione **LabGroup**.
+**3.8.1)** Selecione **Anexar a um balanceador de carga existente** (caixinha do meio). Grupos de destino de balanceador de carga existentes: selecione **LabGroup**.
 
-**3.8.1)** No painel Configurações adicionais, selecione **Enable group metrics collection within CloudWatch** (Ativar coleta de métricas de grupo no CloudWatch). Essa ação captura métricas em intervalos de um minuto, o que permite que o Auto Scaling reaja rapidamente a mudanças nos padrões de uso. Selecione **Próximo**.
+**3.8.2)** Mais para baixo, encontre o título **Configurações adicionais**, selecione **Enable group metrics collection within CloudWatch** ou **Habilitar coleta de métricas de grupo no CloudWatch**. Essa ação captura métricas em intervalos de um minuto, o que permite que o Auto Scaling reaja rapidamente a mudanças nos padrões de uso. Selecione **Próximo**.
 
-**3.9)** Configure os detalhes na **Etapa 4** (Configure o tamanho do grupo e as políticas de scaling: opcional):
+**3.9)** Configure os detalhes na **Etapa 4** (Configure o tamanho do grupo e as políticas de scaling: opcional). Mexa apanas onde essa instrução lhe pede para mexer.
 
-**3.9.1)** Em Tamanho do grupo, configure: 
+**3.9.1)** Em **Tamanho do grupo**, configure: 
 
 **3.9.2)** Capacidade desejada: 2
 
-**3.9.3)** Capacidade mínima: 2
+**3.9.3)**    Capacidade mínima: 2
 
-**3.9.4)** Capacidade máxima: 6. Isso permitirá que o Auto Scaling adicione/remova instâncias automaticamente, mantendo sempre de 2 a 6 instâncias em execução. **LEMBRE-SE DA REGRA DOS 20 EC2, PELO AMOR DE DEUS!***
+**3.9.4)** Capacidade máxima: 6. 
 
-**3.9.5)** Em **Políticas de escalabilidade**, escolha **Política de escalabilidade de rastreamento de destino** e configure:
+Isso permitirá que o Auto Scaling adicione/remova instâncias automaticamente, mantendo sempre de 2 a 6 instâncias em execução. **LEMBRE-SE DA REGRA DOS 20 EC2, PELO AMOR DE DEUS!***
+
+**3.9.5)** Em **Escalabilidade**, escolha a caixinha **Política de escalabilidade de rastreamento de destino** e configure:
 
 **3.9.6)** Nome da política de escalabilidade: **LabScalingPolicy**.
 
 **3.9.7)** Tipo de métrica: **Utilização média da CPU**.
 
-**3.9.8)** Valor de destino: 60. Isso informa ao Auto Scaling para manter uma utilização média de CPU em todas as instâncias em 60%. O Auto Scaling adicionará ou removerá automaticamente a capacidade conforme necessário para manter a métrica no valor de destino especificado ou próxima dele. Ele se ajusta às flutuações na métrica devido a um padrão de carga flutuante.
+**3.9.8)** Valor de destino: **60**   . Isso informa ao Auto Scaling para manter uma utilização média de CPU em todas as instâncias em 60%. O Auto Scaling adicionará ou removerá automaticamente a capacidade conforme necessário para manter a métrica no valor de destino especificado ou próxima dele. Ele se ajusta às flutuações na métrica devido a um padrão de carga flutuante.
 
 **3.9.9)** Selecione **Próximo**.
 
 **3.10)** Configure os detalhes na **Etapa 5** (Adicione notificações: opcional): o Auto Scaling pode enviar uma notificação quando ocorre um evento de scaling. Você usará as configurações padrão. Selecione **Próximo**.
 
-**3.11)** Configure os detalhes na **Etapa 6** (Adicione tags: opcional): as tags aplicadas ao grupo do Auto Scaling serão propagadas automaticamente para as instâncias executadas. Escolha **Adicionar tag** e configure o seguinte:
+**3.11)** Configure os detalhes na **Etapa 6** (Adicione tags: opcional): as tags aplicadas ao grupo do Auto Scaling serão propagadas automaticamente para as instâncias executadas. 
 
-**3.11.1)** Chave: **Name**
+**3.11.1)** Escolha **Adicionar tag** e configure o seguinte:
 
-**3.11.2)** Valor: **Lab Instance**
+**3.11.2)** Chave: **Name**
 
-**3.11.3)** Selecione **Próximo**.
+**3.11.3)** Valor: **Lab Instance**
 
-**3.12)** Configure os detalhes na **Etapa 6** (Revisão): revise os detalhes do grupo do Auto Scaling. Escolha **Criar grupo do Auto Scaling**. O grupo do Auto Scaling mostrará inicialmente uma contagem de instâncias igual a zero, mas novas instâncias serão executadas para atingir a contagem desejada de **duas instâncias**.
+**3.11.4)** Selecione **Próximo**.
+
+**3.12)** Escolha **Criar grupo do Auto Scaling**. O grupo do Auto Scaling mostrará inicialmente uma contagem de instâncias igual a zero, mas novas instâncias serão executadas para atingir a contagem desejada de **duas instâncias**.
 
 ## Passo-04: Verificar se o balanceamento de carga está funcionando
 
