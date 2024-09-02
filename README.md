@@ -46,7 +46,11 @@ O Auto Scaling ajuda a manter a disponibilidade da aplicação e permite aumenta
 
 ## Passo-01: Criar uma AMI para o Auto Scaling
 
-Nesta tarefa, você criará uma AMI com a instância Web Server 1 existente. Isso salvará o conteúdo do disco de inicialização para que novas instâncias possam ser executadas com conteúdo idêntico.
+Nesta tarefa, você criará uma AMI com a instância Web Server 1 existente. 
+
+AMI é a sigla para Amazon Machine Image, ou Imagem de Máquina da Amazon, que é um tipo de dispositivo virtual fornecido pela AWS para criar uma máquina no Amazon Elastic Compute Cloud (EC2).
+
+Isso salvará o conteúdo do disco de inicialização para que novas instâncias possam ser executadas com conteúdo idêntico.
 
 **1.1)** Execute o laboratório do Módulo 10 do curso AWS Foundation. Vamos aproveitar esse laboratório para criarmos a arquitetura acima e depois, adicionar um Bastion Host e fazer os testes do K6.
 
