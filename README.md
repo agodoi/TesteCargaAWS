@@ -43,7 +43,7 @@ O Auto Scaling ajuda a manter a disponibilidade da aplicação e permite aumenta
    <img alt="Arquitetura Inicial" src="[YOUR-DEFAULT-IMAGE](https://github.com/agodoi/TesteCargaAWS/blob/main/imgs/final-architecture.png)">
 </picture>
 
-## Você tem 2 opções
+## Você tem 2 opções:
 
 ### OPC 1) Fazer um teste completo usando uma Arquitetura Corporativa.
 
@@ -53,6 +53,9 @@ O Auto Scaling ajuda a manter a disponibilidade da aplicação e permite aumenta
 
 #### Caso escolha essa opção, comece do PASSO-01.
 
+
+
+__________________________________________________________________________________________________________________________________________________________________________________________
 ## Passo-00: Criar uma Rede Corporativa para Testes
 
 Execute o PASSO-01 ATÉ PASSO-08 dessa instrução [https://github.com/agodoi/ArquiteturaCorp/blob/main/README.md](https://github.com/agodoi/ArquiteturaCorp/blob/main/README.md)
