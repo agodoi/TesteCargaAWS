@@ -449,7 +449,9 @@ O K6 começará a enviar requisições para o servidor Apache na instância priv
 
 **6.6)** Dependendo do que você deseja testar, você pode ajustar os parâmetros `vus` (usuários virtuais) e `duration` (duração do teste) no script `test.js`. Por exemplo, aumentar `vus` para simular mais usuários simultâneos ou aumentar `duration` para ver como o servidor se comporta ao longo de um período mais longo. Se colocar vus = 10000, vai travar o seu EC2 Bastion Host e terá que reiniciá-lo.
 
+**6.7)** Volte para a guia do navegador com o console do **CloudWatch**. Analise o status dos alarmes em vermelho e explore os gráficos que aparecem por lá, informando a carga computacional que os EC2 sofreram. 
 
+Em menos de cinco minutos, o alarme **AlarmLow** deverá mudar para **OK** e o status do alarme **AlarmHigh** deverá mudar para **Em alarme**. Você pode selecionar **Atualizar** no canto superior direito a cada 60 segundos para atualizar a exibição. Você deve ver o gráfico **AlarmHigh** indicando uma porcentagem crescente de CPU. Depois de cruzar a linha de 60% por mais de 3 minutos, o Auto Scaling acionará a adição de instâncias adicionais.
 
 ## Passo-07: Encerrar a instância Web Server 1
 
