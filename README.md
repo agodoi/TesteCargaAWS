@@ -233,7 +233,7 @@ Nesta tarefa, você criará um modelo de execução para seu grupo do Auto Scali
 
 **3.3.7)** Em **Sub-rede** você não mexe e em **Firewall** (grupos de segurança), confirme se está marcado **Selecionar grupo de segurança existente**.
 
-**3.3.8)** Grupos de segurança: escolha **Web Security Group** (Grupo de segurança da web). Caso esteja usando a Arquitetura Corporativa, marque GS_EC2Publico +GS_EC2Privado.
+**3.3.8)** Grupos de segurança: escolha **Web Security Group** (Grupo de segurança da web). Caso esteja usando a Arquitetura Corporativa, marque **GS_EC2Publico** + **GS_EC2Privado**.
 
 **3.3.9)** Role para baixo até a área **Detalhes avançados** e expanda-a.
 
