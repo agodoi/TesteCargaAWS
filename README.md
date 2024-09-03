@@ -58,7 +58,45 @@ O Auto Scaling ajuda a manter a disponibilidade da aplicação e permite aumenta
 __________________________________________________________________________________________________________________________________________________________________________________________
 ## Passo-00: Criar uma Rede Corporativa para Testes
 
-Execute o PASSO-01 ATÉ PASSO-08 dessa instrução [https://github.com/agodoi/ArquiteturaCorp/blob/main/README.md](https://github.com/agodoi/ArquiteturaCorp/blob/main/README.md)
+Execute o **PASSO-01** até **PASSO-08** dessa instrução [https://github.com/agodoi/ArquiteturaCorp/blob/main/README.md](https://github.com/agodoi/ArquiteturaCorp/blob/main/README.md)
+
+Quando terminar, volte aqui...
+
+**0.1)** Entre no seu **Bastion_Host_Publica_ArqCorp** usando uma conexão ssh.
+
+**0.2)** Entre no seu **EC2_Privado_ArqCorp** usando outra conexão ssh a partir do Bastion Host.
+
+**0.3)** Instale um servidor simples no EC2_Privado, que será um Apache:
+
+```
+sudo apt update
+sudo apt install apache2 -y
+```
+
+**0.4)** Crie uma página HTML simples no **index.html** e baixe um imagem simples lá.
+
+```
+echo '<html><body><h1>Hello from Private EC2!</h1></body></html>' | sudo tee /var/www/html/index.html
+```
+
+Baixando uma imagem do site do Inteli:
+
+```
+sudo wget https://www.inteli.edu.br/wp-content/uploads/2024/05/logo.png
+```
+
+**0.5)** Saia do EC2 Privado e volte para Bastion Host. Vamos instalar o testador de carga K6. Digite **exit** na raiz do seu EC2 Privado.
+
+**0.6)** Para aplicar um teste de carga utilizando o K6 no EC2 público (Bastion Host) para o EC2 privado que está rodando um servidor Apache, vamos instalar o K6 no Bastion:
+
+```
+sudo apt update
+sudo gpg -k
+sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+sudo apt-get update
+sudo apt-get install k6
+```
 
 ## Passo-01: Criar uma AMI para o Auto Scaling
 
@@ -321,7 +359,8 @@ Você criou um grupo de Auto Scaling com um mínimo de duas instâncias e um má
 
 Dois alarmes serão exibidos. Foram criados automaticamente pelo grupo de Auto Scaling. Manterão automaticamente a carga média da CPU próxima a 60%, permanecendo também dentro da limitação de ter de 2 a 6 instâncias.
 
-### ATENÇÃO: siga estas etapas somente se você não vir os alarmes em 60 segundos.
+### ATENÇÃO: siga estas etapas somente se você não vir os alarmes em 60 segundos ou quanto tiver pressionado o Skoll desce redondo.
+
 
 **5.4)** No menu **Serviços**, selecione **EC2**.
 
@@ -359,13 +398,66 @@ Dois alarmes serão exibidos. Foram criados automaticamente pelo grupo de Auto S
 A aplicação http://labelb-1152052616.us-east-1.elb.amazonaws.com/load.php não encerra o auto teste de carga. Portanto, não vamos ver o EC2 sendo "devolvido".
 
 
-## Passo-06: Encerrar a instância Web Server 1
+## Passo-06: Carga de Teste K6
+
+### Só faça esse passo caso você tenha optado pelo OPC (1) Arquitetura Corporatativa para Testes.
+### Caso tenha optado pelo OPC (2), pule para o Passo-07
+
+
+**6.1)** Vamos criar um script K6 de teste. No Bastion Host, crie um arquivo chamado `test.js`. Mas antes, pegue o IP local do EC2 Privado e anote aí num canto.
+
+```
+nano test.js
+```
+
+**6.2)** Cole o seguinte conteúdo, que faz requisições GET ao servidor Apache na instância privada e altere o **private-ip** no script que veio do EC2 Privado.
+
+```
+import http from 'k6/http';
+import { sleep, check } from 'k6';
+
+export let options = {
+   vus: 1000, // Número de usuários virtuais
+   duration: '30s', // Duração do teste
+};
+
+export default function () {
+   let res = http.get('http://private-ip');
+   check(res, {
+       'status is 200': (r) => r.status === 200,
+   });
+   sleep(1);
+}
+```
+#### Substitua `private-ip` pelo IP privado da instância EC2 privada onde o Apache está rodando.
+
+**6.3)** Após colar o código e alterar o IP, pressione `Ctrl + X`, depois `Y` e `Enter` para salvar e sair.
+
+**6.4)** Com o script pronto, você pode executar o teste no seu Bastion Host
+
+```
+k6 run test.js
+```
+
+O K6 começará a enviar requisições para o servidor Apache na instância privada. Você verá os resultados do teste em tempo real, incluindo a taxa de requisições por segundo, as latências e outras métricas.
+
+**6.5)** Enquanto o teste estiver rodando, o K6 mostrará na tela estatísticas como:
+
+- **HTTP Status Codes**: Quantos pedidos foram bem-sucedidos (status 200).
+- **Request Duration**: Tempo que levou para receber as respostas.
+- **Requisições por segundo**: Quantidade de requisições que o servidor está conseguindo processar.
+
+**6.6)** Dependendo do que você deseja testar, você pode ajustar os parâmetros `vus` (usuários virtuais) e `duration` (duração do teste) no script `test.js`. Por exemplo, aumentar `vus` para simular mais usuários simultâneos ou aumentar `duration` para ver como o servidor se comporta ao longo de um período mais longo. Se colocar vus = 10000, vai travar o seu EC2 Bastion Host e terá que reiniciá-lo.
+
+
+
+## Passo-07: Encerrar a instância Web Server 1
 
 Nesta tarefa, você encerrará a instância **Web Server 1**. Essa instância foi utilizada para criar a AMI usada por seu grupo do Auto Scaling, mas ela não é mais necessária.
 
-**6.1)** Selecione  Web Server 1 e verifique se é a única instância selecionada. Se você desligar o Web Server 1, as **cópias** Lab Instance serão devolvidas.
+**7.1)** Selecione  Web Server 1 e verifique se é a única instância selecionada. Se você desligar o Web Server 1, as **cópias** Lab Instance serão devolvidas.
 
-**6.2)** No menu **Estado da instância**, selecione **Estado da instância** > **Encerrar instância**.
+**7.2)** No menu **Estado da instância**, selecione **Estado da instância** > **Encerrar instância**.
 
 Selecione **Encerrar**.
 
@@ -389,319 +481,3 @@ Parabéns! Você concluiu um dos laboratórios mais detalhado do curso.
 * Um painel será exibido com a mensagem: "DELETE has been initiated... (A EXCLUSÃO foi iniciada...) você pode fechar esta caixa de mensagem agora.”
 
 * Selecione o X no canto superior direito para fechar o painel.
-
-
-
-___________________________________________________________________________________________________________________________________
-
-
-## Desafio para sua DEV
-
-# Passo-01: Criando a VPC
-
-**1.1)** Busque por VPC no console da AWS;
-
-**1.2)** Clique no botão laranja CRIAR;
-
-**1.3)** Selecione **VPC e muito mais**.
-
-**1.4)** No campo **Tag de nome** digite **VPC_Arquitetura_Corp**.
-
-**1.5)** Bloco CIDR IPV4 digite **192.168.0.0/22**
-
-**1.6)** As demais opções, você não precisa mexer e basta confirmar no botão laranja.
-
-Nessa etapa, as subredes públicas e privadas já serão criadas, o IGW, NAT, tabelas de rotas, grupos de segurança, etc, tudo será automaticamnete criado.
-
-# Passo-06: Criando EC2 - Bastion Host (público)
-
-Nesse passo você já deve estar ficando bom, pois já vimos EC2 em outra aula! Vamos criar 2 instâncias EC2, sendo uma na sub-rede pública e outra na sub-rede privada. O EC2 da sub-rede pública vai se comportar como **Bastion Host** e o EC2 da sub-rede privada, será seu servidor dinâmico, por exemplo.
-
-**6.1)** Buscando por EC2 na lupa do console, crie uma instância que será pública, nomeie-a como **BastionHostLoadTest**, escolha **Ubuntu**, deixe como **Tipo de instância** qualificada para o nível gratuito, gere uma par de chave com o nome **PEM_EC2Publico_ArqCorp**, edite as opções de **Configurações de rede**, aponte para a **VPC_Arquitetura_Corp**, aponte para sub-rede pública recém criada, deixe **Atribuir IP público automaticamente** no **habilitar**, no **Firewall** deixe marcado a opção **Criar grupo de segurança**, coloque um nome no seu **Grupo de segurança** como **GS_EC2Publico** habilite apenas a opção do SSH e confirme no botão laranja.
-
-Mas atenção: esse IP público que você está recebendo agora nessa instância vai mudar se você desligar o EC2.
-
-## Passo-07: Criando outro EC2 - Servidor (privado)
-
-**7.1)** Faça o mesmo para o EC2 privado criando uma nova instância, nomeie-a como **EC2_Privado_ArqCorp**, escolha **Ubuntu**, deixe como **Tipo de instância** qualificada para o nível gratuito, gere uma par de chave com o nome **PEM_EC2Privado_ArqCorp**, edite as opções de **Configurações de rede**, aponte para a **VPC_Arquitetura_Corp**, aponte para sub-rede privada recém criada, deixe **Atribuir IP público automaticamente** no **desabilitar**, no **Firewall** deixe marcado a opção **Criar grupo de segurança**, coloque um nome no seu **Grupo de segurança** como **GS_EC2Privado** habilite as opções o **SSH** e aponte **GS_EC2Publico** (para apontar, na opção **Origem**, deixe **Personalizado** que vai aparecer o grupo de segurança mencionado). Caso precise no futuro (mas não agora para essa aula) adicione **HTTP** e **HTTPS** com **0.0.0.0/0**. Nesse caso, seu EC2 estará disponível para acesso HTTP e HTTPS para fora da sua VPC. Confirme no botão laranja.
-
-## Passo-08 (testes):
-
-Confira se seu EC2 privado (que é um servidor interno) está acessível a partir do Bastion Host. Para isso:
-
-**8.1)** Faça uma conexão **ssh -i** no seu Bastion Host usando o IP público (que você pega no botão **Conectar** das propriedade do EC2 externo chamado Bastion Host;
-
-**8.2)** Crie uma pasta raiz **mkdir** chamada **keys**. 
-
-**8.3)** Dentro dessa pasta, dê um **sudo nano BastionHostLoadTest.pem** para criar o arquivo PEM, copie o texto da sua chave que deve estar na sua área do seu PC, cole no arquivo, dê um **Ctrl+S** e depois um **Ctrl+X** para salvar e sair.
-
-**8.4)** E dê outro **ssh -i** mas usando o endereço privado do EC2 privado. 
-
-**8.5)** Você deve estar dentro do EC2 interno usando o EC2 externo.
-
-**8.6)** Agora tente acessar o seu EC2 interno como se fosse o EC2 externo, isto é, execute o item **(8.1)** dessa passo mas usando o IP privado do botão **Conectar** do seu EC2 privado. Funcionou? Não! Por que? Seu EC2 interno possui IP público? Ele está com acesso ao IGW do EC2 externo? Não!
-
-Conclusões: seu EC2 público está protegendo o EC2 interno. Você pode ter quantos EC2 internos desejar. Basta armazenar as chaves internas dentro do EC2 público. Mas cuidado com os acessos do EC2 público. Ele está como regra de entrada o 0.0.0.0/0 e isso não é legal. O correto é você colocar o IP fixo externo da sua empresa. Assim, somente os DEVOPS vão acessar esse EC2 externo.
-
-**8.7)** Outro teste é o EC2 privado não consegue acessar a Internet para se atualizar. Então o NAT Gateway precisa enchegar esse caminho para fora. Da forma que está agora, não consiguiremos atualizar nada no EC2 privado. **O segredo é assossiar o NAT Gateway à sub-rede pública** que você fez no Passo-05 **5.2**. 
-
-**8.8)** **Tente atualizar o Ubuntu do seu EC2 interno** que vai dar certo [sudo apt-get update]. E se você tentar acessar o EC2 privado usando qualquer IP (público ou privado), não vai funcionar porque o NAT Gateway só permite o fluxo de dentro para fora e não de fora para dentro.
-
-# Passo-09: Criando um serviço S3
-## Por padrão, todo S3 é totalmente bloqueado. Sua função agora é liberar as devidas funções dele.
-
-Esse S3 serve para você adicionar seu site estático e não arquivos corporativos da sua empresa, ou logs de acesso, ou dados de clientes, pois esse S3 estará visível na Internet. Se você precisa de um S3 mais seguro, crie outro dentro da VPC. Deixar um S3 visível na Internet é o principal motivo de vazamento de dados sensíveis ou pessoal.
-
-**9.1)** Digite S3 na lupa do console.
-
-**9.2)** Clique em **Criar bucket** (botão laranja).
-
-**9.3)** No campo **Nome do bucket** digite algor parecido com **s3_arqcoporativa** (os nomes de buckets são exclusivos mundialmente porque possuem URL exclusivas, logo você terá que criar o seu nome exlusivo). Mas atenção: não pode ter letras maiúsculas e nem começar o nome com número.
-
-**9.4)** Em região, aponte para o **us-east-1**.
-
-**9.5)** Deixa todas as demais configurações básicas como estão e clique no botão laranja **Criar bucket**.
-
-**9.6)** Retorne em suas instâncias de buckets e clique no bucket que você acabou de criar (link azul) para configurá-los. Note que ele está como **Bucket e objetos não públicos**.
-
-**9.6.1)** Dentro das configurações do Bucket, procure pela aba **Propriedades**, vá até o final da página e em **Hospedagem de site estático**, clique em **Editar** e depois, **ativar**.
-
-**9.6.2)** Em **Tipo de hospedagem** deixe em **Hospedar um site estático**.
-
-**9.6.3)** Em **Documento de índice** coloque o nome do arquivo-fonte do seu site, que nesse caso, pode ser **index.html**. Você deve salvar esse código abaixo em arquivo texto tipo *html* e vai usar numa etapa futura, não agora. Então, apenas salve esse código num arquivo **index.html** aí no seu HD local.
-
-```
-<!doctype html>
-<html>
-  <head>
-    <title>This is the title of the webpage!</title>
-  </head>
-  <body>
-    <p>This is an example paragraph. Anything in the <strong>body</strong> tag will appear on the page, just like this <strong>p</strong> tag and its contents.</p>
-  </body>
-</html>
-
-```
-
-**9.6.4)** No campo **Documento de erro - opcional** você pode deixar em branco ou elaborar uma página personalizada para quando der um erro em seu site ou até usar a mesma arquivo **index.html**. Para hoje, deixe esse campo em branco
-
-**9.6.5)** Clique no botão laranja no final da página para confirmar.
-
-**9.6.6)** Se você retornar em **Propriedades** após a confirmação, você terá o link do seu S3 instanciado, algo assim: **http://arquiteturacorp.s3-website-us-east-1.amazonaws.com/**, e se você clicar nesse link, constará **erro 403 Forbidden, Code: AccessDenied**.
-
-**9.7)** Você pode carregar um arquivo qualquer no seu S3, clicando em **Objetos**. E ainda pode criar uma pasta qualquer chamada **Teste**. Então, suba um arquivo qualquer e crie uma pasta qualquer em seu S3. Veja a figura a seguir que demonstra como fica o seu HD virtual lá na AWS.
-
-**9.8)** Você precisa liberar acesso ao público do S3. Vá no botão **Permissões**, depois em **Bloquear acesso público (configurações do bucket)** clique em **Editar**, depois desmarque **Bloquear todo o acesso público** e **Salvar alterações** e digite **confirmar**.
-
-
-<picture>
-   <source media="(prefers-color-scheme: light)" srcset="https://github.com/agodoi/ARQUITETURA/blob/main/imgs/objetos.png">
-   <img alt="Objetos" src="[YOUR-DEFAULT-IMAGE](https://github.com/agodoi/ARQUITETURA/blob/main/imgs/objetos.png)">
-</picture>
-
-
-**9.8)** Nessa etapa, vamos definir as permissões de acesso ao S3. Por padrão, ele totalmente bloqueado. Clique na aba **Permissões** e perceba que em **Visão geral das permissões** que está como **bucket e objetos não públicos**. Isso significa que o seu S3 ou site não está visível externamente. Então, em **Bloquear acesso público**, você clica em **Editar** e desmarque a opção **Bloquear todo o acesso público** e clique no botão laranja **Salvar alterações**. Note que aparecerá uma tela de confirmação novamente, conforme abaixo, onde você vai ter que digitar **confirmar**. Note que os vazamentos de dados ocorrem devido às configurações erradas e não *sem querer querendo*.
-
-
-<picture>
-   <source media="(prefers-color-scheme: light)" srcset="https://github.com/agodoi/ARQUITETURA/blob/main/imgs/confirmacao_desbloqueio.png">
-   <img alt="Confirmação" src="[YOUR-DEFAULT-IMAGE](https://github.com/agodoi/ARQUITETURA/blob/main/imgs/confirmacao_desbloqueio.png)">
-</picture>
-
-Agora, vá novamente na sua lista de Buckets e veja como está o **Acesso** na frente do seu bucket. Ele deve estar assim: **Os objetos podem ser públicos**, igual ao da imagem abaixo, então o S3 ainda não é público, mas pode ser...
-
-<picture>
-   <source media="(prefers-color-scheme: light)" srcset="https://github.com/agodoi/ARQUITETURA/blob/main/imgs/podem_ser_publicos.png">
-   <img alt="Podem Ser Públicos" src="[YOUR-DEFAULT-IMAGE](https://github.com/agodoi/ARQUITETURA/blob/main/imgs/podem_ser_publicos.png)">
-</picture>
-
-**9.10)** Agora, vamos gerar uma **Apólice do bucket**, que vai liberar os acessos ao seu S3. Para isso, clique em **Permissões** do seu bucket e em, **Política do bucket**, clique em **Editar** e depois **Gerador de Apólices**. Daí você vai ver uma tela como a seguir:
-
-
-<picture>
-   <source media="(prefers-color-scheme: light)" srcset="https://github.com/agodoi/ARQUITETURA/blob/main/imgs/gerador_politica.png">
-   <img alt="Gerador de Política" src="[YOUR-DEFAULT-IMAGE](https://github.com/agodoi/ARQUITETURA/blob/main/imgs/gerador_politica.png)">
-</picture>
-
-
-**9.11)** Em **Step 1 - Select Policy Type**, selecione **S3 Bucket Policy**, em **Step 2 - Add Statements(s)**, marque **Allow** em **Principal**, coloque asterisco para indicar qualquer objeto. Em **Actions** escolha **GetObject** que serve para liberar acesso aos objetos do seu site, para aparecer na sua tela do navegador. Mas note que não será possível deletar, atualizar ou colocar nada (do CRUD, somente o R - Read estará liberado). No campo **ARN (Amazon Resource Name)** você pega lá no seu bucket na aba **Propriedades**. Tem que ser algo do tipo *arn:aws:s3:::arquiteturacorp*. MAS ATENÇÃO! Adicione um /* logo após seu ARN. Então ficaria algo assim:
-
-
-### arn:aws:s3:::arquiteturacorp/*
-
-Por fim, clique em **Add Statement** e depois, confirme em **Generate Policy** para gerar sua política. O resultado será um arquivo JSON com sua apólice, algo do tipo:
-```
-{
-  "Id": "Policy1692046481274",
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Sid": "Stmt1692046458290",
-      "Action": [
-        "s3:GetObject"
-      ],
-      "Effect": "Allow",
-      "Resource": "arn:aws:s3:::arquiteturacorp/*",
-      "Principal": "*"
-    }
-  ]
-}
-```
-
-Agora, dê um Ctrl+C nesse JSON para você levar lá no bucket criado e editar a **Permissões** dele. 
-
-<picture>
-   <source media="(prefers-color-scheme: light)" srcset="https://github.com/agodoi/ArquiteturaCorp/blob/main/imgs/gerador_politica-2.png">
-   <img alt="Gerador de Política" src="[YOUR-DEFAULT-IMAGE](https://github.com/agodoi/ArquiteturaCorp/blob/main/imgs/gerador_politica-2.png)">
-</picture>
-
-Vá na aba **Permissões** do seu Bucket, clique em **Política do bucket** e cole esse JSON lá e confirme no SALVAR. Veja a figura a seguir para entender melhor.
-
-### Observe que seu bucket agora está público, e com um ícone de atenção.
-
-Para fazer um teste, acesse o link do seu S3 e verá que o erro terá mudado agora. Ele está acessível externamente, mas não tem o arquivo **index.html**. Veja a imagem a seguir para entender melhor.
-
-
-<picture>
-   <source media="(prefers-color-scheme: light)" srcset="https://github.com/agodoi/ARQUITETURA/blob/main/imgs/erro404-sem-indexHTML.png">
-   <img alt="Gerador de Política" src="[YOUR-DEFAULT-IMAGE](https://github.com/agodoi/ARQUITETURA/blob/main/imgs/erro404-sem-indexHTML.png)">
-</picture>
-
-
-**9.12)** Agora, basta você colocar um arquivo index.html dentro do seu S3 como se fosse um objeto. Arraste o seu index.html para dentro e salva. Veja a imagem de como fica no final:
-
-
-<picture>
-   <source media="(prefers-color-scheme: light)" srcset="https://github.com/agodoi/ARQUITETURA/blob/main/imgs/index-html-S3.png">
-   <img alt="Gerador de Política" src="[YOUR-DEFAULT-IMAGE](https://github.com/agodoi/ARQUITETURA/blob/main/imgs/index-html-S3.png)">
-</picture>
-
-Agora você pode atualizar o seu link do S3 que o seu site estático estará no ar.
-
-
-
-
-passos:
-
-para instalar um servidor apache no EC2 Privado
-sudo apt update
-sudo apt install apache2 -y
-
-
-Criando uma página simples:
-
-echo '<html><body><h1>Hello from Private EC2!</h1></body></html>' | sudo tee /var/www/html/index.html
-
-
-sudo apt-get install httpie
-
-sudo snap install http
-
-ubuntu@ip-192-168-0-86:~$ http http://192.168.1.153
-HTTP/1.1 200 OK
-Accept-Ranges: bytes
-Connection: Keep-Alive
-Content-Length: 59
-Content-Type: text/html
-Date: Tue, 03 Sep 2024 13:32:50 GMT
-ETag: "3b-6213704b18c4b"
-Keep-Alive: timeout=5, max=100
-Last-Modified: Tue, 03 Sep 2024 13:27:25 GMT
-Server: Apache/2.4.58 (Ubuntu)
-
-<html><body><h1>Hello from Private EC2!</h1></body></html>
-
-## Para instalar o K6
-
-sudo gpg -k
-sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
-echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
-sudo apt-get update
-sudo apt-get install k6
-
-
-
-Para aplicar um teste de carga utilizando o K6 no EC2 público (Bastion Host) para o EC2 privado que está rodando um servidor Apache, siga os passos abaixo:
-
-### 1. **Instalar o K6 no Bastion Host**
-
-Primeiro, você precisa instalar o K6 na instância EC2 pública (Bastion Host).
-
-1. **Conectar-se ao Bastion Host**:
-   - Use SSH para se conectar ao Bastion Host:
-     ```bash
-     ssh -i "chave.pem" ubuntu@public-ip-bastion
-     ```
-
-2. **Instalar o K6**:
-   - Adicione o repositório e instale o K6 usando os comandos abaixo:
-     ```bash
-     sudo apt update
-     sudo apt install -y ca-certificates gnupg2
-     curl -s https://dl.k6.io/key.gpg | sudo apt-key add -
-     echo "deb https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
-     sudo apt update
-     sudo apt install k6
-     ```
-
-### 2. **Escrever o Script de Teste K6**
-
-Agora, crie um script K6 que define como o teste de carga será realizado.
-
-1. **Criar o Script K6**:
-   - No Bastion Host, crie um arquivo chamado `test.js`:
-     ```bash
-     nano test.js
-     ```
-   - Cole o seguinte conteúdo, que faz requisições GET ao servidor Apache na instância privada:
-     ```javascript
-     import http from 'k6/http';
-     import { sleep, check } from 'k6';
-
-     export let options = {
-         vus: 10, // Número de usuários virtuais
-         duration: '30s', // Duração do teste
-     };
-
-     export default function () {
-         let res = http.get('http://private-ip');
-         check(res, {
-             'status is 200': (r) => r.status === 200,
-         });
-         sleep(1);
-     }
-     ```
-   - Substitua `private-ip` pelo IP privado da instância EC2 privada onde o Apache está rodando.
-
-2. **Salvar e sair do editor**:
-   - Após colar o código, pressione `Ctrl + X`, depois `Y` e `Enter` para salvar e sair.
-
-### 3. **Executar o Teste de Carga K6**
-
-Com o script pronto, você pode executar o teste.
-
-1. **Executar o K6**:
-   - Execute o seguinte comando para iniciar o teste de carga:
-     ```bash
-     k6 run test.js
-     ```
-   - O K6 começará a enviar requisições para o servidor Apache na instância privada. Você verá os resultados do teste em tempo real, incluindo a taxa de requisições por segundo, as latências e outras métricas.
-
-### 4. **Interpretação dos Resultados**
-
-Enquanto o teste estiver rodando, o K6 mostrará na tela estatísticas como:
-
-- **HTTP Status Codes**: Quantos pedidos foram bem-sucedidos (status 200).
-- **Request Duration**: Tempo que levou para receber as respostas.
-- **Requisições por segundo**: Quantidade de requisições que o servidor está conseguindo processar.
-
-### 5. **Ajustar Parâmetros de Teste**
-
-Dependendo do que você deseja testar, você pode ajustar os parâmetros `vus` (usuários virtuais) e `duration` (duração do teste) no script `test.js`. Por exemplo, aumentar `vus` para simular mais usuários simultâneos ou aumentar `duration` para ver como o servidor se comporta ao longo de um período mais longo.
-
-### 6. **Encerramento**
-
-Depois de concluir os testes, você pode encerrar o K6 e analisar os resultados para entender o desempenho do servidor Apache na instância privada. 
-
-Se precisar de ajuda adicional com análise dos resultados ou mais ajustes, estou à disposição!
-
