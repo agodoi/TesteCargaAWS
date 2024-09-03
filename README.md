@@ -68,9 +68,9 @@ Agora, você criará uma AMI com base nessa instância.
 * Descrição da imagem: **Lab AMI for Web Server**
 * Deixei tudo como está sem alterar
 
-**1.6)** Clique em **Criar imagem**. Um banner de confirmação exibe o ID da AMI nova. 
+**1.6)** Clique em **Criar imagem**. Um banner verde de confirmação exibe o ID (tipo ami-065d3b82f7a510b8e) da AMI nova. 
 
-Você usará essa AMI ao iniciar o grupo do Auto Scaling posteriormente no laboratório.
+Você usará essa AMI ao iniciar o grupo do Auto Scaling posteriormente no laboratório. Guenta que vamos chegar lá.
 
 
 ## Passo-02: Criar um ELB
@@ -87,7 +87,7 @@ Lembrando, que o Grupo de Destino é um subitem do ELB que serve para monitorar 
 
 **2.4)** Nome do grupo de destino, insira: **LabGroup** e deixa todos os itens sem alterar até a próxima etapa.
 
-**2.5)** Selecione **Lab VPC** no menu suspenso VPC.
+**2.5)** Selecione **Lab VPC** no menu suspenso VPC. Se você estiver usando a sua **VPC_Arquitetura_Corp**, selecione essa.
 
 Análise: **grupos de destino** definem para qual local enviar o tráfego que entra no balanceador de carga. O Application Load Balancer pode enviar tráfego para vários grupos de destino com base na URL da solicitação recebida, como ter solicitações de aplicativos móveis indo para outro conjunto de servidores. O aplicativo web usará apenas um grupo de destino.
 
@@ -101,7 +101,7 @@ Dica: Na opção **Protocolo da verificação de integridade**, indica que o Gru
   
 **2.6)** Deixe tudo como está até aqui e selecione **Próximo**. A tela **Registrar destinos** é exibida.
 
-Observação: **Destinos** são instâncias individuais que responderão às solicitações do balanceador de carga. Você ainda não tem nenhuma instância de aplicativo web rodando; portanto, pode ignorar esta etapa. Caso você veja um Bastion Host ou algum outro EC2, ignore-o. NÃO MARQUE NADA! Siga em frente.
+Observação: **Destinos** são instâncias individuais que responderão às solicitações do balanceador de carga. Você ainda não tem nenhuma instância de aplicativo web rodando; portanto, pode ignorar esta etapa. **Caso você veja um Bastion Host ou algum outro EC2, ignore-o. NÃO MARQUE NADA! Siga em frente**.
 
 **2.7)** Revise as configurações sem mexer em nada e selecione **Criar grupo de destino**.
 
@@ -129,18 +129,18 @@ Você usará um **Application Load Balancer** que opera no nível de solicitaç�
 
 **2.11)** Em **Nome** do balanceador de carga, insira: **LabELB**.
 
-**2.12)** Role para baixo até a seção **Mapeamento de rede** e, depois, em **VPC**, selecione **Lab VPC**.
+**2.12)** Role para baixo até a seção **Mapeamento de rede** e, depois, em **VPC**, selecione **Lab VPC** ou **VPC_Arquitetura_Corp** se você estiver aproveitando sua infra do Learner Lab.
 
 Agora você especificará quais sub-redes o balanceador de carga deve usar. Será um balanceador de carga voltado para a Internet; portanto, selecione as duas sub-redes públicas, mas calma que vamos fazer por partes para não dar pau no final.
 
-**2.12.1)** Escolha a **primeira** Zona de Disponibilidade exibida e selecione **Sub-rede pública 1** no menu suspenso **Sub-rede** exibido abaixo dela.
+**2.12.1)** Escolha a **primeira** Zona de Disponibilidade exibida e selecione **Sub-rede pública 1** no menu suspenso **Sub-rede** exibido abaixo dela. Ou se estiver na ArquiteturaCorp a **Sub_Publica_a** e **Sub_Privada_b**.
 
 **2.12.2)** Escolha a **segunda** Zona de Disponibilidade exibida e selecione **Sub-rede pública 2** no menu suspenso **Sub-rede** exibido abaixo dela.
 
 Agora você terá duas sub-redes selecionadas: **Sub-rede pública 1** e **Sub-rede pública 2**. 
  
 
-**2.13)** Na seção **Grupos de segurança:**, escolha **Grupos de segurança** no menu suspenso e selecione **Web Security Group** (Grupo de segurança da web).
+**2.13)** Na seção **Grupos de segurança:**, escolha **Grupos de segurança** no menu suspenso e selecione **Web Security Group** (Grupo de segurança da web). Ou **GS_EC2Privado** + **GS_EC2Publico**.
 
 Abaixo do menu suspenso, selecione o **X** ao lado do grupo de segurança **Default** e clique para removê-lo.
 
@@ -177,9 +177,9 @@ Nesta tarefa, você criará um modelo de execução para seu grupo do Auto Scali
 
 **3.3.6)** Nome do par de chaves: selecione **vockey**.
 
-**3.3.7)** Firewall (grupos de segurança), confirme se está marcado **Selecionar grupo de segurança existente**.
+**3.3.7)** Em **Sub-rede** você não mexe e em **Firewall** (grupos de segurança), confirme se está marcado **Selecionar grupo de segurança existente**.
 
-**3.3.8)** Grupos de segurança: escolha **Web Security Group** (Grupo de segurança da web).
+**3.3.8)** Grupos de segurança: escolha **Web Security Group** (Grupo de segurança da web). Caso esteja usando a Arquitetura Corporativa, marque GS_EC2Publico +GS_EC2Privado.
 
 **3.3.9)** Role para baixo até a área **Detalhes avançados** e expanda-a.
 
@@ -187,9 +187,13 @@ Nesta tarefa, você criará um modelo de execução para seu grupo do Auto Scali
 
 **3.3.11)** Deixe todo o restante do jeito que está e clique no botão laranja **Criar modelo de execução**. A seguir, você criará um grupo do Auto Scaling que usa esse modelo de execução.
 
-**3.4)** Na caixa de diálogo de tarja verde “Êxito”, selecione o modelo de execução **LabConfig**.
+**3.4)** Na caixa de diálogo de tarja verde **Êxito**, selecione o modelo de execução **LabConfig**.
 
 **3.5)** No menu **Ações**, selecione **Criar grupo do Auto Scaling**.
+
+### Presta a atenção à esquerda que você está configurando ETAPAS 1 a 7...
+
+### ETAPA 1
 
 **3.6)** Configure os detalhes na **Etapa 1** (Selecione o modelo de execução ou a configuração):
 
@@ -199,15 +203,17 @@ Nesta tarefa, você criará um modelo de execução para seu grupo do Auto Scali
 
 **3.6.3)** Deixe o restante como está e selecione **Próximo**.
 
-### Presta a atenção à esquerda que você está configurando ETAPAS 1 a 7...
+### ETAPA 2
 
 **3.7)** Configure os detalhes na **Etapa 2** (Selecione as opções para executar a instância):
 
-**3.7.1)** VPC: selecione **Lab VPC**.
+**3.7.1)** VPC: selecione **Lab VPC** ou **VPC_Arquitetura_Corp**.
 
 **3.7.2)** Zonas de disponibilidade e sub-redes: escolha **Sub-rede privada 1** e **Sub-rede privada 2**. Agora vc está arrumando a rede interna, porque a rede exeterna foi resolvida na etapa anterior.
 
 **3.7.3)** Selecione **Próximo**.
+
+### ETAPA 3
 
 **3.8)** Configure os detalhes na **Etapa 3** (Configure as opções avançadas):
 
@@ -215,7 +221,7 @@ Nesta tarefa, você criará um modelo de execução para seu grupo do Auto Scali
 
 **3.8.2)** Mais para baixo, encontre o título **Configurações adicionais**, selecione **Enable group metrics collection within CloudWatch** ou **Habilitar coleta de métricas de grupo no CloudWatch**. Essa ação captura métricas em intervalos de um minuto, o que permite que o Auto Scaling reaja rapidamente a mudanças nos padrões de uso. Selecione **Próximo**.
 
-### Agora você está na ETAPA 4
+### ETAPA 4
 
 **3.9)** Configure os detalhes na **Etapa 4** (Configure o tamanho do grupo e as políticas de scaling: opcional). Mexa apanas onde essa instrução lhe pede para mexer.
 
@@ -229,7 +235,7 @@ Nesta tarefa, você criará um modelo de execução para seu grupo do Auto Scali
 
 Isso permitirá que o Auto Scaling adicione/remova instâncias automaticamente, mantendo sempre de 2 a 6 instâncias em execução. **LEMBRE-SE DA REGRA DOS 20 EC2, PELO AMOR DE DEUS!***
 
-**3.9.5)** Em **Escalabilidade**, escolha a caixinha **Política de escalabilidade de rastreamento de destino** e configure:
+**3.9.5)** Em **Escalabilidade**, escolha a caixinha **Política de escalabilidade de rastreamento de destino** ou **Política de dimensionamento com monitoramento do objetivo** e configure:
 
 **3.9.6)** Nome da política de escalabilidade: **LabScalingPolicy**.
 
@@ -239,7 +245,7 @@ Isso permitirá que o Auto Scaling adicione/remova instâncias automaticamente, 
 
 **3.9.9)** Não mexa em mais nada e selecione **Próximo**.
 
-### Agora você está na ETAPA 05
+### ETAPA 05
 
 **3.10)** Configure os detalhes na **Etapa 5** (Adicione notificações: opcional): o Auto Scaling pode enviar uma notificação quando ocorre um evento de scaling. Você usará as configurações padrão. Para essa aula, não mexa em nada e selecione **Próximo**, mas você poderá fazer isso no seu projeto depois.
 
@@ -255,7 +261,7 @@ Isso permitirá que o Auto Scaling adicione/remova instâncias automaticamente, 
 
 **3.11.4)** Selecione **Próximo**.
 
-### Agora você está na ETAPA 07
+### ETAPA 07
 
 **3.12)** Nessa etapa não faremos nada. Só observe o que foi feito e escolha **Criar grupo do Auto Scaling**. O grupo do Auto Scaling mostrará inicialmente uma contagem de instâncias igual a zero, mas novas instâncias serão executadas para atingir a contagem desejada de **duas instâncias**.
 
@@ -263,25 +269,27 @@ Isso permitirá que o Auto Scaling adicione/remova instâncias automaticamente, 
 
 Nesta tarefa, você verificará se o balanceamento de carga está funcionando corretamente.
 
-**4.1)** No painel de navegação à esquerda, selecione **Instâncias**. Devem aparecer duas novas instâncias chamadas **Lab Instance**. Elas foram iniciadas pelo Auto Scaling. Se as instâncias ou nomes não forem exibidos, aguarde 30 segundos e selecione “Atualizar”  no canto superior direito. Em seguida, você confirmará que as novas instâncias foram aprovadas na health check.
+**4.1)** No painel de navegação à esquerda, selecione **Instâncias**. Devem aparecer duas novas instâncias chamadas **Lab Instance**. Elas foram iniciadas pelo Auto Scaling. Se as instâncias ou nomes não forem exibidos, aguarde 30 segundos e selecione **Rodinha Skoll desce redondo**  no canto superior direito. Em seguida, você confirmará que as novas instâncias foram aprovadas na health check.
 
-**4.2)** No painel de navegação à esquerda, escolha **Grupos de destino**. Selecione **LabGroup**.
+**4.2)** No painel de navegação à esquerda, escolha **Grupos de destino** e entre no **LabGroup** clicando em seu link azul.
 
-**4.3)** Escolha o menu horizontal **Destinos**. Duas instâncias de destino chamadas **Lab Instance** (Instância do laboratório) devem ser listadas no grupo de destino. Se estiver vazio, **rodinha da Skoll desce redondo** para atualizar.
+**4.2.1)** Pressione a **rodinha Skoll desce redondo** para atualizar a sua tela.
+
+**4.3)** Escolha o menu horizontal **Destinos**. Duas instâncias de destino chamadas **Lab Instance** (Instância do laboratório) devem ser listadas no grupo de destino. Se estiver vazio, **rodinha da Skoll desce redondo** para atualizar novamente.
 
 **4.3)** Aguarde até que o **Status** de ambas as instâncias mude para íntegro. Selecione **Atualizar** no canto superior direito para verificar se há atualizações, caso necessário.
 
-O status íntegro indica que a instância passou na health check do balanceador de carga. Isso significa que o balanceador de carga enviará tráfego para a instância. Agora você pode acessar o grupo do Auto Scaling por meio do balanceador de carga.
+O status íntegro indica que a **instância passou na health check do balanceador de carga**. Isso significa que o balanceador de carga enviará tráfego para a instância. Agora você pode acessar o grupo do Auto Scaling por meio do balanceador de carga.
 
 **4.4)** No painel de navegação à esquerda, escolha **Balanceadores de carga**.
 
-**4.5)** Selecione o balanceador de carga **LabELB**.
+**4.5)** Selecione o balanceador de carga **LabELB** pelo seu link azul.
 
 **4.6)** No painel **Detalhes**, copie o **Nome do DNS** (não é o **ARN do load balancer** e sim o endereço à direita dele, algo do tipo **LabELB-1152052616.us-east-1.elb.amazonaws.com**) do balanceador de carga, omitindo “(Registro A)”.
 
 **4.7)** Abra uma nova guia do navegador da web, cole o nome do DNS que você acabou de copiar e pressione Enter. O aplicativo deve aparecer em seu navegador. Você deve se lembrar desse app porque você já fez uma agenda com ele.
 
-Se você chegou até aqui, Parabéns!
+## Se você chegou até aqui, Parabéns!
 
 Isso indica que o balanceador de carga recebeu a solicitação, a enviou para uma das instâncias do EC2 e, em seguida, repassou o resultado.
 
@@ -553,3 +561,131 @@ Para fazer um teste, acesse o link do seu S3 e verá que o erro terá mudado ago
 </picture>
 
 Agora você pode atualizar o seu link do S3 que o seu site estático estará no ar.
+
+
+
+
+passos:
+
+para instalar um servidor apache no EC2 Privado
+sudo apt update
+sudo apt install apache2 -y
+
+
+Criando uma página simples:
+
+echo '<html><body><h1>Hello from Private EC2!</h1></body></html>' | sudo tee /var/www/html/index.html
+
+
+sudo apt-get install httpie
+
+sudo snap install http
+
+ubuntu@ip-192-168-0-86:~$ http http://192.168.1.153
+HTTP/1.1 200 OK
+Accept-Ranges: bytes
+Connection: Keep-Alive
+Content-Length: 59
+Content-Type: text/html
+Date: Tue, 03 Sep 2024 13:32:50 GMT
+ETag: "3b-6213704b18c4b"
+Keep-Alive: timeout=5, max=100
+Last-Modified: Tue, 03 Sep 2024 13:27:25 GMT
+Server: Apache/2.4.58 (Ubuntu)
+
+<html><body><h1>Hello from Private EC2!</h1></body></html>
+
+## Para instalar o K6
+
+sudo gpg -k
+sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+sudo apt-get update
+sudo apt-get install k6
+
+
+
+Para aplicar um teste de carga utilizando o K6 no EC2 público (Bastion Host) para o EC2 privado que está rodando um servidor Apache, siga os passos abaixo:
+
+### 1. **Instalar o K6 no Bastion Host**
+
+Primeiro, você precisa instalar o K6 na instância EC2 pública (Bastion Host).
+
+1. **Conectar-se ao Bastion Host**:
+   - Use SSH para se conectar ao Bastion Host:
+     ```bash
+     ssh -i "chave.pem" ubuntu@public-ip-bastion
+     ```
+
+2. **Instalar o K6**:
+   - Adicione o repositório e instale o K6 usando os comandos abaixo:
+     ```bash
+     sudo apt update
+     sudo apt install -y ca-certificates gnupg2
+     curl -s https://dl.k6.io/key.gpg | sudo apt-key add -
+     echo "deb https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+     sudo apt update
+     sudo apt install k6
+     ```
+
+### 2. **Escrever o Script de Teste K6**
+
+Agora, crie um script K6 que define como o teste de carga será realizado.
+
+1. **Criar o Script K6**:
+   - No Bastion Host, crie um arquivo chamado `test.js`:
+     ```bash
+     nano test.js
+     ```
+   - Cole o seguinte conteúdo, que faz requisições GET ao servidor Apache na instância privada:
+     ```javascript
+     import http from 'k6/http';
+     import { sleep, check } from 'k6';
+
+     export let options = {
+         vus: 10, // Número de usuários virtuais
+         duration: '30s', // Duração do teste
+     };
+
+     export default function () {
+         let res = http.get('http://private-ip');
+         check(res, {
+             'status is 200': (r) => r.status === 200,
+         });
+         sleep(1);
+     }
+     ```
+   - Substitua `private-ip` pelo IP privado da instância EC2 privada onde o Apache está rodando.
+
+2. **Salvar e sair do editor**:
+   - Após colar o código, pressione `Ctrl + X`, depois `Y` e `Enter` para salvar e sair.
+
+### 3. **Executar o Teste de Carga K6**
+
+Com o script pronto, você pode executar o teste.
+
+1. **Executar o K6**:
+   - Execute o seguinte comando para iniciar o teste de carga:
+     ```bash
+     k6 run test.js
+     ```
+   - O K6 começará a enviar requisições para o servidor Apache na instância privada. Você verá os resultados do teste em tempo real, incluindo a taxa de requisições por segundo, as latências e outras métricas.
+
+### 4. **Interpretação dos Resultados**
+
+Enquanto o teste estiver rodando, o K6 mostrará na tela estatísticas como:
+
+- **HTTP Status Codes**: Quantos pedidos foram bem-sucedidos (status 200).
+- **Request Duration**: Tempo que levou para receber as respostas.
+- **Requisições por segundo**: Quantidade de requisições que o servidor está conseguindo processar.
+
+### 5. **Ajustar Parâmetros de Teste**
+
+Dependendo do que você deseja testar, você pode ajustar os parâmetros `vus` (usuários virtuais) e `duration` (duração do teste) no script `test.js`. Por exemplo, aumentar `vus` para simular mais usuários simultâneos ou aumentar `duration` para ver como o servidor se comporta ao longo de um período mais longo.
+
+### 6. **Encerramento**
+
+Depois de concluir os testes, você pode encerrar o K6 e analisar os resultados para entender o desempenho do servidor Apache na instância privada. 
+
+Se precisar de ajuda adicional com análise dos resultados ou mais ajustes, estou à disposição!
+
