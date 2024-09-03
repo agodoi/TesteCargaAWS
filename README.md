@@ -46,7 +46,7 @@ O Auto Scaling ajuda a manter a disponibilidade da aplicação e permite aumenta
 
 ## Passo-00: Criar uma Rede Corporativa
 
-Execute o PASSO-01 ATÉ PASSO-08 dessa instrução [https://github.com/agodoi/ArquiteturaCorp/blob/main/README.md])https://github.com/agodoi/ArquiteturaCorp/blob/main/README.md)
+Execute o PASSO-01 ATÉ PASSO-08 dessa instrução [https://github.com/agodoi/ArquiteturaCorp/blob/main/README.md](https://github.com/agodoi/ArquiteturaCorp/blob/main/README.md)
 
 ## Passo-01: Criar uma AMI para o Auto Scaling
 
