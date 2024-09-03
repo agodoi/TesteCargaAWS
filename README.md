@@ -76,7 +76,7 @@ sudo apt install apache2 -y
 **0.4)** Crie uma página HTML simples no **index.html** e baixe um imagem simples lá.
 
 ```
-echo '<html><body><h1>Hello from Private EC2!</h1></body></html>' | sudo tee /var/www/html/index.html
+echo '<html><body><h1>Hello do EC2_Privado_ArqCorp!</h1></body></html>' | sudo tee /var/www/html/index.html
 ```
 
 Baixando uma imagem do site do Inteli:
